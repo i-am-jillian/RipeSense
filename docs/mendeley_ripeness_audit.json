@@ -1,0 +1,75 @@
+{
+  "inspected_on": "2026-11-07",
+  "dataset": "y5h6v8w6ms",
+  "version": 2,
+  "archive": {
+    "filename": "Ripeness Grading.zip",
+    "id": "fe338218-efb6-47fa-bd51-4c54579cfcc1",
+    "content_details": {
+      "id": "253c4380-beb0-46b3-a79c-96f18c684d12",
+      "sha256_hash": "a39888247cf5099505eda1f1489e46d00c2c6ddc9aa57c5f02f3b36821f85cd4",
+      "content_type": "application/zip",
+      "size": 1555999320,
+      "created_date": "2025-05-06T07:57:59.531Z",
+      "download_url": "https://data.mendeley.com/public-files/datasets/y5h6v8w6ms/files/fe338218-efb6-47fa-bd51-4c54579cfcc1/file_downloaded",
+      "view_url": "https://data.mendeley.com/public-files/datasets/y5h6v8w6ms/files/fe338218-efb6-47fa-bd51-4c54579cfcc1/file_viewed",
+      "download_expiry_time": "2126-11-07T21:18:08.765535425Z"
+    },
+    "size": 1555999320,
+    "last_modified_date": "2025-05-06T07:57:59.531Z",
+    "status": "COMPLETED"
+  },
+  "members": 3699,
+  "jpeg_count": 3231,
+  "candidate_specimens": 20,
+  "days": {
+    "1": 180,
+    "2": 180,
+    "3": 180,
+    "4": 180,
+    "5": 180,
+    "6": 180,
+    "7": 180,
+    "8": 180,
+    "9": 171,
+    "10": 180,
+    "11": 180,
+    "12": 180,
+    "13": 180,
+    "14": 180,
+    "15": 180,
+    "16": 180,
+    "17": 180,
+    "18": 180
+  },
+  "varieties": [
+    "kinnaur",
+    "red delicious new zealand",
+    "red delicious usa",
+    "royal gala",
+    "washington"
+  ],
+  "example_members": [
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_1.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_2.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_3.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_4.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_5.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_6.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_7.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_8.jpg",
+    "Ripeness Grading/day 1/kinnaur/APPLE 1/apple1_9.jpg"
+  ],
+  "sample_dimensions": [
+    17280,
+    1080
+  ],
+  "verified_wavelengths_nm": null,
+  "verified_physical_apples_per_stage": {
+    "under-ripe": null,
+    "ripe": null,
+    "over-ripe": null,
+    "spoiled": null
+  },
+  "status": "BLOCKED_UNVERIFIED_MAPPING"
+}

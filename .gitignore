@@ -218,3 +218,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# RipeSense generated datasets, models, and Colab outputs
+/data/
+/datasets/
+/artifacts/
+/runs/
+/ripesense_detection_spectral/
+/RipeSense_Detection_Spectral/
+*.zip
+*.rar
+*.pt
+*.onnx
+*.joblib
+*.part
