@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RipeSense recipe</title>
+<style>
+  :root { --bg:#faf8f4; --card:#ffffff; --ink:#1c1d20; --quiet:#6d717a; --line:#ebe7df; --accent:#e08a00;
+          --unripe:#4f9a2f; --ripe:#1f9d55; --overripe:#d97706; --spoiled:#c2410c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111214; --card:#1a1c20; --ink:#eef0f3; --quiet:#a0a6ae; --line:#2a2d33; --accent:#ffb020; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 620px; margin: 0 auto; padding: 18px 16px 40px; }
+  .brand { font-size: 14px; color: var(--quiet); margin-bottom: 14px; } .brand b { color: var(--accent); }
+  .scan { display: flex; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line);
+          border-radius: 16px; padding: 12px; margin-bottom: 16px; }
+  .scan img { width: 84px; height: 64px; object-fit: cover; border-radius: 10px; background: var(--line); flex: none; }
+  .chip { display: inline-block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+          padding: 2px 9px; border-radius: 999px; color: #fff; background: var(--ripe); }
+  .scan .what { font-size: 15px; } .scan .what div:last-child { color: var(--quiet); font-size: 14px; }
+  h1 { font-size: 28px; line-height: 1.15; margin: 4px 0 6px; letter-spacing: -.3px; }
+  .why { color: var(--quiet); margin: 0 0 14px; }
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .meta span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 14px; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .6px; color: var(--quiet); margin: 22px 0 8px; }
+  ul.ing { list-style: none; padding: 0; margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  ul.ing li { border-bottom: 1px solid var(--line); }
+  ul.ing li:last-child { border-bottom: 0; }
+  ul.ing label { display: flex; gap: 12px; align-items: center; padding: 11px 14px; cursor: pointer; }
+  ul.ing input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+  ul.ing input:checked + span { text-decoration: line-through; color: var(--quiet); }
+  ol.steps { padding: 0; margin: 0; list-style: none; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; padding: 2px 0 14px 44px; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+          background: var(--accent); color: #111; font-weight: 800; display: grid; place-items: center; font-size: 15px; }
+  .src { margin-top: 26px; font-size: 13px; color: var(--quiet); }
+  .empty { padding: 40px 0; text-align: center; color: var(--quiet); }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">Ripe<b>Sense</b> &middot; recipe for your scan</div>
+  <div id="root" class="empty">Loading…</div>
+</main>
+<script>
+const id = Number(location.pathname.split("/").filter(Boolean).pop());
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); Object.assign(e, attrs); e.append(...kids); return e; };
+fetch(`/api/scans/${id}/recipe`).then((r) => r.ok ? r.json() : Promise.reject()).then((d) => {
+  const root = document.getElementById("root"); root.className = ""; root.replaceChildren();
+  const chip = el("span", { className: "chip", textContent: d.stage });
+  chip.style.background = `var(--${d.stage})`;
+  const lo = Math.round(d.days_low ?? NaN), hi = Math.round(d.days_high ?? NaN);
+  const days = !Number.isFinite(lo) || d.stage === "spoiled" ? "" : lo === hi ? ` · about ${lo} day${lo === 1 ? "" : "s"} left` : ` · ${lo}–${hi} days left`;
+  const img = el("img", { src: `/api/scans/${id}/thumb.jpg`, alt: d.fruit }); img.onerror = () => img.remove();
+  root.append(el("div", { className: "scan" }, img,
+    el("div", { className: "what" }, el("div", {}, chip, ` ${d.fruit[0].toUpperCase()}${d.fruit.slice(1)}`),
+      el("div", { textContent: (d.headline || "") + days }))));
+  const r = d.recipe;
+  if (!r) { root.append(el("p", { className: "empty", textContent: "No recipe for this one: it is past its best." })); return; }
+  document.title = `${r.title} · RipeSense`;
+  root.append(el("h1", { textContent: r.title }), el("p", { className: "why", textContent: r.why }),
+    el("div", { className: "meta" }, el("span", { textContent: `${r.minutes} min` }), el("span", { textContent: `Serves ${r.servings}` })),
+    el("h2", { textContent: "Ingredients" }),
+    el("ul", { className: "ing" }, ...r.ingredients.map((t) => el("li", {}, el("label", {}, el("input", { type: "checkbox" }), el("span", { textContent: t }))))),
+    el("h2", { textContent: "Steps" }),
+    el("ol", { className: "steps" }, ...r.steps.map((t) => el("li", { textContent: t }))),
+    el("p", { className: "src", textContent: `${r.source === "built-in" ? "Built-in recipe" : "Written by " + r.source}. Ripeness measured by RipeSense camera, spectral and gas sensors.` }));
+}).catch(() => { document.getElementById("root").textContent = "Recipe not found."; });
+</script>
+</body>
+</html>

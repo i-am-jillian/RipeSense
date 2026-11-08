@@ -1,0 +1,14 @@
+[Unit]
+Description=RipeSense fruit scanner
+After=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__ROOT__
+EnvironmentFile=-/etc/ripesense.env
+ExecStart=__ROOT__/.venv/bin/python -m ripesense run
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

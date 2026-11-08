@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RipeSense · Fruit scanner</title><link rel="stylesheet" href="/static/demo.css"></head>
+<body><main id="app">
+<header><strong><span class="logo">◒</span> RipeSense</strong><span class="pill">SIMULATION</span><span id="connection" class="online">● Ready</span></header>
+<section id="idle" class="view" hidden>
+<div class="welcome-mark">◒</div><div class="eyebrow">WELCOME TO RIPESENSE</div>
+<h1>Hello! What would you<br>like to scan today?</h1>
+<p>Place your fruit in the holder, then tap below.</p>
+<button id="start" class="primary">Scan my fruit <span>→</span></button>
+<footer>Discover its ripeness. Find your next recipe.</footer></section>
+<section id="scanning" class="view" hidden>
+<div class="scan-top"><span class="eyebrow" id="scan-heading">IDENTIFYING YOUR FRUIT</span><strong id="percent">0%</strong></div>
+<div class="scan-body"><div class="chamber"><img src="/static/chamber-banana-top.png" alt="Simulated top-down camera view: banana on the circular plywood holder inside the wooden enclosure"><span class="camera-tag">CHAMBER VIEW · SIMULATED</span><div class="scan-beam"></div><span id="detected-tag">Identifying…</span></div>
+<div class="scan-detail"><h2 id="step-title">What’s inside?</h2><p id="step-copy">Looking at shape and peel color…</p>
+<div class="sensor-grid"><div id="sensor0"><b>01</b><span>Camera</span></div><div id="sensor1"><b>02</b><span>Spectrum</span></div><div id="sensor2"><b>03</b><span>Gas</span></div><div id="sensor3"><b>04</b><span>Result</span></div></div></div></div>
+<div class="track"><div id="progress"></div></div><footer>Simulated fruit detection and sensor readings</footer></section>
+<section id="result" class="view" hidden><div class="result-main"><div><div class="eyebrow">BANANA · SLIGHTLY GREEN</div><h1>Good now.<br>Even sweeter soon.</h1><div class="traits"><span>Firm texture</span><span>Mild sweetness</span></div><p class="estimate">Scripted estimate at room temperature</p></div><div class="days"><strong>1–2</strong><span>DAYS TO IDEAL</span><small>for sweeter fresh eating</small></div></div><div class="ripeness"><span>Green</span><div><i></i></div><span>Sweet</span></div><div class="result-actions"><button id="again" class="secondary">New scan</button><button id="recipe" class="primary" disabled>Preparing recipe…</button></div><footer id="recipe-status">Matching a recipe to this ripeness</footer></section>
+<section id="qr" class="view" hidden><div class="qr-left"><button id="back" class="back">← Result</button><div class="eyebrow">MAKE SOMETHING GOOD</div><h2 id="recipe-title">Your banana recipe</h2><p id="recipe-source"></p><p class="network">Scan with your phone.<br>Join UB Wi-Fi first.</p><p id="recipe-address"></p><button id="new-from-qr" class="qr-new">New scan</button></div><div class="qr-right"><img id="qr-image" alt="Scan to open your recipe"><span>YOUR RECIPE, TO GO</span></div></section>
+<div id="notice" role="status" hidden></div>
+</main><script src="/static/demo.js"></script></body></html>

@@ -1,0 +1,65 @@
+# RipeSense configuration. Copy to config.toml and edit.
+# Every value has a default in ripesense/config.py, so you only need the lines you change.
+
+[app]
+data_dir = "data"              # scans, images, database, calibration
+simulate = false               # true = no hardware, everything is simulated
+default_fruit = "banana"       # used when the image model is not installed
+mode = "home"                  # "home" or "store" at start-up
+host = "0.0.0.0"
+port = 8000
+
+[pins]                         # BCM numbers. The 3.5" SPI screen uses 7-11, 17, 24, 25: avoid them.
+touch = 5                      # TTP223 output (goes HIGH when touched)
+door = 6                       # reed switch to GND (LOW = door shut); set -1 if not fitted
+led_strip = 12                 # MOSFET for the camera LED strip
+led_white = 13                 # MOSFET for the white spectral LEDs
+led_ir = 19                    # MOSFET for the 850 nm IR LEDs
+fan = 26                       # MOSFET for the mixing fan
+
+[camera]
+kind = "realsense"             # "realsense", "opencv" or "mock"
+color_size = [640, 480]
+depth_size = [480, 270]        # lower depth resolution = shorter minimum distance
+fps = 15
+warmup_frames = 20
+opencv_index = 0
+
+[spectral]
+kind = "as7341"                # "as7341" or "mock"
+gain = 64                      # AS7341 gain: 0.5 ... 512
+atime = 100
+astep = 999
+reads = 3                      # readings averaged per light
+led_settle_s = 0.15
+
+[gas]
+kind = "mq_ads1115"            # "mq_ads1115", "bme680" or "mock"
+ads_channel = 0
+sample_period_s = 1.0
+scan_seconds = 120             # how long the fruit is sniffed
+baseline_window_s = 30
+warmup_minutes = 20            # MQ heaters need time; the UI warns until then
+
+[model]
+path = "models/ripesense.joblib"
+image_model = "models/fruit_classifier.onnx"   # optional, from tools/train_image_model.py
+min_confidence = 0.6
+
+[gemini]                       # recipe + tip writer; needs GEMINI_API_KEY in the environment
+enabled = true
+model = "gemini-3.8-flash"
+fallback_models = ["gemini-2.5-flash"]   # tried in order if the first model name fails
+timeout_s = 15
+
+[qr]                           # where the recipe QR code points
+target = "lan"                 # "lan": recipe page served by the Pi (phone on the same Wi-Fi)
+                               # "search": a web search for the recipe title (works on any network)
+public_url = ""                # e.g. "http://192.168.4.1:8000" if auto-detection picks the wrong address
+
+[store]                        # Store-mode prices (per item) used for markdown suggestions
+currency = "$"
+prices = { banana = 0.35, avocado = 1.50, tomato = 0.80, apple = 0.90, mango = 1.75, other = 1.00 }
+
+[timeseries]                   # optional Tiger Data / any PostgreSQL log
+postgres_url = ""              # e.g. "postgresql://user:pass@host:5432/tsdb"

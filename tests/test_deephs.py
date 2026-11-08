@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 import pandas as pd
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-import ripesense_deephs as dh
+import Model.ripesense_deephs as dh
 
 class DeepHSTests(unittest.TestCase):
     def test_all_views_days_stay_together(self):

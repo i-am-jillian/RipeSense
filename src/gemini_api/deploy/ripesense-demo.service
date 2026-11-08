@@ -1,0 +1,16 @@
+[Unit]
+Description=RipeSense banana simulation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ieee
+WorkingDirectory=/home/ieee/ripesense-demo
+ExecStart=/usr/bin/python3 -m ripesense.demo
+Restart=on-failure
+RestartSec=3
+Environment=PYTHONUNBUFFERED=1
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -1,5 +1,7 @@
 # RipeSense
 
+**Local AS7341 bench test:** see [setup, Arduino upload and VS Code run commands](bench/README.md). Includes guided dark/white calibration, three same-spot scans, model predictions, and apple sensor-only logging—no Colab or camera.
+
 Open [`RipeSense_Detection_Spectral.ipynb`](RipeSense_Detection_Spectral.ipynb) in Google Colab with **File → Upload notebook**, or its GitHub tab after pushing the repo. The notebook runs without local training data or a sensor.
 
 ## Colab run order

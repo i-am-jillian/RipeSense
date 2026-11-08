@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=RipeSense Demo
+Exec=/bin/sh /home/ieee/ripesense-demo/deploy/demo-kiosk.sh
+Terminal=false

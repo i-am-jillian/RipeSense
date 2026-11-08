@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=480, height=320, initial-scale=1, user-scalable=no">
+<title>RipeSense</title>
+<link rel="stylesheet" href="/static/kiosk.css">
+</head>
+<body>
+<!-- inline icon set (no network needed on the Pi) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-spectrum" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 19V12"/><path d="M9.5 19V7"/><path d="M14 19V10"/><path d="M18.5 19V5"/></g></symbol>
+    <symbol id="i-gas" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/><path d="M3 19h7"/></g></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" fill="currentColor"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M6 3h12v18H6z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="15" cy="12" r="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.1-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19.5 3.5v4.5H15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-fruit" viewBox="0 0 24 24"><path d="M12 7c-4.5-2-8 1.2-8 5.5S7.5 21 12 19.5c4.5 1.5 8-2.7 8-7S16.5 5 12 7z" fill="currentColor"/><path d="M12 7c0-2 1-3.5 3-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V12m0-1a1.5 1.5 0 0 1 3 0v4.5A5.5 5.5 0 0 1 12.5 21h-.8a5 5 0 0 1-4.2-2.3L5 15a1.5 1.5 0 0 1 2.4-1.8L9 15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="18" r="1.1" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<main id="app">
+  <header>
+    <span class="brand"><svg class="ic"><use href="#i-fruit"/></svg>Ripe<b>Sense</b></span>
+    <span id="untrained" class="tag" hidden>rough mode</span>
+    <button id="rescanBtn" class="hbtn" hidden><svg class="ic"><use href="#i-redo"/></svg>Rescan</button>
+    <div class="seg" role="group" aria-label="Mode">
+      <button data-mode="home" class="on">Home</button><button data-mode="store">Store</button>
+    </div>
+  </header>
+
+  <!-- IDLE ------------------------------------------------------------------ -->
+  <section id="idle" class="view">
+    <div class="idle-left">
+      <div class="eyebrow">Ready to scan</div>
+      <h1>Place a fruit<br>in the cradle</h1>
+      <ol class="how">
+        <li><svg class="ic"><use href="#i-fruit"/></svg>Place</li>
+        <li><svg class="ic"><use href="#i-door"/></svg>Close door</li>
+        <li><svg class="ic"><use href="#i-hand"/></svg>Tap the ring</li>
+      </ol>
+      <div class="ready">
+        <span class="rchip" id="rCamera"><i></i>Camera</span>
+        <span class="rchip" id="rSpectral"><i></i>Spectral</span>
+        <span class="rchip" id="rGas"><i></i><em>Gas</em></span>
+      </div>
+      <div id="last" class="last"></div>
+    </div>
+    <button id="tapBtn" class="tap" aria-label="Start scan">
+      <svg class="orbit" viewBox="0 0 140 140"><circle cx="70" cy="70" r="66"/></svg>
+      <span class="tap-in"><b>TAP</b><small>to scan</small></span>
+    </button>
+  </section>
+
+  <!-- SCANNING -------------------------------------------------------------- -->
+  <section id="scanning" class="view" hidden>
+    <div class="scan-left">
+      <div class="ring">
+        <svg viewBox="0 0 160 160"><circle class="track" cx="80" cy="80" r="68"/><circle id="arc" class="arc" cx="80" cy="80" r="68"/></svg>
+        <div class="ring-in">
+          <svg class="ic big" id="stepIcon"><use href="#i-camera"/></svg>
+          <div id="ringNum" class="ring-num"></div>
+        </div>
+      </div>
+      <div id="stepLabel" class="step-label">Starting</div>
+    </div>
+    <div class="cards">
+      <div class="card" id="cCamera">
+        <div class="thumbbox"><img id="livePhoto" alt=""></div>
+        <div class="ctext"><div class="ctitle"><svg class="ic"><use href="#i-camera"/></svg>Camera</div><div class="csub" id="camSub">Waiting</div></div>
+      </div>
+      <div class="card" id="cSpectral">
+        <svg id="spec" class="mini" viewBox="0 0 120 52" preserveAspectRatio="none"></svg>
+        <div class="ctext"><div class="ctitle"><svg class="ic"><use href="#i-spectrum"/></svg>Spectrum</div><div class="csub" id="specSub">415–680 nm</div></div>
+      </div>
+      <div class="card" id="cGas">
+        <svg id="gas" class="mini" viewBox="0 0 120 52" preserveAspectRatio="none"></svg>
+        <div class="ctext"><div class="ctitle"><svg class="ic"><use href="#i-gas"/></svg>Gases</div><div class="csub" id="gasSub">Waiting</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT ---------------------------------------------------------------- -->
+  <section id="result" class="view" hidden>
+    <div class="res-left">
+      <div class="res-top"><span id="stageChip" class="chip">ripe</span><span id="fruitName" class="fruit"></span></div>
+      <div id="headline" class="headline"></div>
+      <div class="days">
+        <div><div id="daysNum" class="days-num"></div><div class="days-lbl" id="daysLbl">days left</div></div>
+        <div class="conf">
+          <svg viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="18"/><circle id="confArc" class="arc" cx="22" cy="22" r="18"/></svg>
+          <span id="confNum"></span>
+        </div>
+        <div class="conf-lbl">sure</div>
+      </div>
+      <div class="gauge">
+        <div class="gbar"><span id="gMark"></span></div>
+        <div class="glbl"><span>Unripe</span><span>Ripe</span><span>Overripe</span><span>Spoiled</span></div>
+      </div>
+      <div class="agree" id="agree">
+        <div data-m="camera"><div class="at"><svg class="ic"><use href="#i-camera"/></svg><b>Camera</b><svg class="ic s"><use href="#i-check"/></svg></div><div class="av"></div></div>
+        <div data-m="spectral"><div class="at"><svg class="ic"><use href="#i-spectrum"/></svg><b>Spectral</b><svg class="ic s"><use href="#i-check"/></svg></div><div class="av"></div></div>
+        <div data-m="gas"><div class="at"><svg class="ic"><use href="#i-gas"/></svg><b>Gas</b><svg class="ic s"><use href="#i-check"/></svg></div><div class="av"></div></div>
+      </div>
+      <div id="bottom" class="bottom"></div>
+    </div>
+    <div class="res-right">
+      <div class="photo"><img id="thumb" alt=""></div>
+      <button id="recipeCard" class="recipe">
+        <div id="qrWrap" class="qr" hidden><img id="qrImg" alt="Recipe QR code"></div>
+        <div id="recipeWait" class="rwait"><span class="spin"></span><span>Gemini is writing a recipe…</span></div>
+        <div id="recipeLbl" class="rlbl" hidden><b>Scan for recipe</b><span id="recipeTitle"></span></div>
+      </button>
+    </div>
+  </section>
+
+  <!-- ERROR ----------------------------------------------------------------- -->
+  <section id="error" class="view" hidden>
+    <svg class="ic huge" id="errIcon"><use href="#i-alert"/></svg>
+    <h2 id="errMsg"></h2>
+    <button id="retryBtn" class="primary">Try again</button>
+  </section>
+
+  <!-- full-screen QR -->
+  <div id="qrBig" class="overlay" hidden>
+    <img id="qrBigImg" alt="Recipe QR code">
+    <div class="ov-text"><b id="qrBigTitle"></b><span>Point your phone camera here</span><small id="qrBigSrc"></small><em>Tap anywhere to close</em></div>
+  </div>
+</main>
+<script src="/static/kiosk.js"></script>
+</body>
+</html>

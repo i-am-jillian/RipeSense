@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RipeSense data collection</title>
+<style>
+  :root { --bg:#f6f5f2; --panel:#fff; --ink:#1d1f23; --quiet:#6b7078; --line:#e2e0db; --accent:#d98a00; --good:#1f9d55; --bad:#c9372c; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111214; --panel:#1a1c20; --ink:#eceef1; --quiet:#9aa0a8; --line:#2b2e34; --accent:#ffb020; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 16px; }
+  h1 { font-size: 22px; margin: 4px 0 2px; } h2 { font-size: 16px; margin: 0 0 10px; }
+  .sub { color: var(--quiet); margin: 0 0 16px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  label { display:block; font-size:13px; color:var(--quiet); margin: 6px 0 2px; }
+  input, select, button { font: inherit; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+  input, select { width: 100%; }
+  button { cursor: pointer; background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 600; }
+  button.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .row { display:flex; gap:8px; align-items:end; flex-wrap: wrap; } .row > * { flex: 1; min-width: 90px; }
+  .status { margin-top: 10px; color: var(--quiet); min-height: 22px; }
+  .table-wrap { overflow-x: auto; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; font-size: 14px; }
+  th { font-size: 12px; color: var(--quiet); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  td img { width: 64px; height: 48px; object-fit: cover; border-radius: 6px; background: var(--bg); }
+  td select, td input { padding: 5px 6px; } td input.days { width: 70px; } td input.fid { width: 90px; }
+  .pill { display:inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; border:1px solid var(--line); }
+  .saved { color: var(--good); font-size: 12px; } .err { color: var(--bad); }
+  pre { white-space: pre-wrap; font-size: 13px; margin: 8px 0 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <h1>RipeSense data collection</h1>
+  <p class="sub" id="sub">Scan, label, train. Open this page on a laptop or phone on the same network.</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1 · Scan a fruit</h2>
+      <div class="row">
+        <div><label for="fid">Fruit ID (write it on the fruit)</label><input id="fid" placeholder="B07"></div>
+        <div><label for="fruit">Fruit</label><select id="fruit"></select></div>
+      </div>
+      <div class="row" style="margin-top:10px"><button id="scan">Scan now</button></div>
+      <div class="status" id="scanStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>2 · Calibrate</h2>
+      <p class="sub" style="margin:0 0 8px">White: puck in the seat, door shut. Empty: nothing inside, door shut.</p>
+      <div class="row"><button class="ghost" id="calWhite">White reference</button><button class="ghost" id="calEmpty">Empty chamber</button></div>
+      <div class="status" id="calStatus"></div>
+    </section>
+
+    <section class="card">
+      <h2>3 · Train</h2>
+      <label><input type="checkbox" id="synth" style="width:auto"> include synthetic scans (testing only)</label>
+      <div class="row" style="margin-top:8px"><button id="train">Train model</button><a href="/api/export.csv"><button class="ghost" type="button">Export CSV</button></a></div>
+      <pre id="trainOut"></pre>
+    </section>
+
+    <section class="card" id="simCard" hidden>
+      <h2>Simulator</h2>
+      <div class="row">
+        <div><label for="simFruit">Fruit</label><select id="simFruit"><option>banana</option><option>avocado</option><option>tomato</option></select></div>
+        <div><label for="simR">Ripeness <span id="simRv">0.40</span></label><input id="simR" type="range" min="0" max="1" step="0.05" value="0.4"></div>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="ghost" id="simInsert">Put fruit in</button><button class="ghost" id="simTouch">Tap the ring</button></div>
+      <div class="status" id="simStatus"></div>
+    </section>
+  </div>
+
+  <h2>Recent scans</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th></th><th>Prediction</th><th>Fruit ID</th><th>Fruit</th><th>True stage</th><th>Days left</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let info = null;
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  let data = null; try { data = await r.json(); } catch (e) {}
+  return { ok: r.ok, data };
+}
+function opt(sel, values, value) {
+  sel.replaceChildren(...values.map((v) => { const o = document.createElement("option"); o.value = v; o.textContent = v || "—"; if (v === value) o.selected = true; return o; }));
+}
+async function loadInfo() {
+  info = (await api("/api/info")).data;
+  opt($("fruit"), ["", ...info.fruits], "");
+  $("simCard").hidden = !info.simulate;
+  $("sub").textContent = `Predictor: ${info.predictor}. Calibrated: white ${info.calibrated_white ? "yes" : "no"}, empty ${info.calibrated_empty ? "yes" : "no"}.` + (info.simulate ? " Simulation mode." : "");
+}
+async function loadRows() {
+  const rows = (await api("/api/scans?limit=60")).data || [];
+  const tb = $("rows"); tb.replaceChildren();
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    const img = r.synthetic ? "" : `<img src="/api/scans/${Number(r.id)}/thumb.jpg" alt="" onerror="this.remove()">`;
+    const d = r.days_mid == null ? "" : ` · ${r.days_mid} d`;
+    tr.innerHTML = `<td>${r.id}</td><td>${img}</td><td><span class="pill"></span> ${Math.round(r.confidence * 100)}%</td>
+      <td><input class="fid"></td><td><select class="ft"></select></td><td><select class="st"></select></td>
+      <td><input class="days" type="number" step="0.5" min="0"></td><td><button class="ghost save">Save</button> <span class="saved"></span></td>`;
+    tr.querySelector(".pill").textContent = `${r.stage}${d}`;
+    tr.querySelector(".fid").value = r.fruit_id ?? "";
+    tr.querySelector(".days").value = r.label_days ?? "";
+    opt(tr.querySelector(".ft"), info.fruits, r.fruit_type);
+    opt(tr.querySelector(".st"), ["", ...info.stages], r.label_stage ?? "");
+    tr.querySelector(".save").onclick = async () => {
+      const res = await api("/api/label", { scan_id: r.id, fruit_id: tr.querySelector(".fid").value, fruit_type: tr.querySelector(".ft").value,
+        stage: tr.querySelector(".st").value, days: tr.querySelector(".days").value });
+      tr.querySelector(".saved").textContent = res.ok ? "saved" : "error";
+    };
+    tb.append(tr);
+  }
+}
+async function watchScan() {
+  const s = (await api("/api/state")).data;
+  $("scanStatus").textContent = s.status === "scanning" ? s.message : s.status === "error" ? s.message :
+    s.status === "result" ? `Done: scan #${s.scan_id}, ${s.result.prediction.stage}. Label it below.` : "";
+  if (s.status === "scanning") setTimeout(watchScan, 500); else loadRows();
+}
+$("scan").onclick = async () => { const r = await api("/api/scan", { fruit_id: $("fid").value, fruit: $("fruit").value }); if (!r.ok) $("scanStatus").textContent = "Busy"; setTimeout(watchScan, 300); };
+$("calWhite").onclick = async () => { $("calStatus").textContent = "Measuring…"; const r = await api("/api/calibrate/white", {}); $("calStatus").textContent = r.ok ? `White reference saved${r.data.saturated ? " (saturated: lower the gain)" : ""}` : "Failed"; loadInfo(); };
+$("calEmpty").onclick = async () => { $("calStatus").textContent = "Capturing…"; const r = await api("/api/calibrate/empty", {}); $("calStatus").textContent = r.ok ? `Empty chamber saved (floor ${r.data.floor_m ? (r.data.floor_m * 1000).toFixed(0) + " mm" : "n/a"})` : "Failed"; loadInfo(); };
+$("train").onclick = async () => { $("trainOut").textContent = "Training…"; const r = await api("/api/train", { include_synthetic: $("synth").checked });
+  $("trainOut").textContent = r.data?.ok ? JSON.stringify(r.data.metrics, null, 1) : (r.data?.error || "failed"); loadInfo(); };
+$("simR").oninput = () => ($("simRv").textContent = (+$("simR").value).toFixed(2));
+$("simInsert").onclick = async () => { $("simStatus").textContent = "Opening door…"; const r = await api("/api/sim/insert", { fruit: $("simFruit").value, ripeness: $("simR").value }); $("simStatus").textContent = `Inside: ${r.data.fruit}, ripeness ${r.data.ripeness}`; };
+$("simTouch").onclick = async () => { await api("/api/sim/touch", {}); setTimeout(watchScan, 300); };
+loadInfo().then(loadRows);
+</script>
+</body>
+</html>

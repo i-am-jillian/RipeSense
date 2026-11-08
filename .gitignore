@@ -232,3 +232,8 @@ __marimo__/
 *.onnx
 *.joblib
 *.part
+
+# AS7341 local bench measurements and Arduino build products
+/bench_logs/
+/bench/build/
+/.venv-bench/

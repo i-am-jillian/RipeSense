@@ -1,0 +1,7 @@
+# The supplied deephs_ripeness.joblib was saved with scikit-learn 1.6.1.
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.2.3
+scikit-learn==1.6.1
+joblib==1.4.2
+pyserial==3.5
