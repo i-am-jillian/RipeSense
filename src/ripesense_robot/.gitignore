@@ -1,0 +1,11 @@
+# this folder ships its own model files, training logs and datasets (the repo root ignores those by default)
+!*.onnx
+!*.log
+!datasets/
+!datasets/**
+# never commit
+.env
+.tiger_env
+runs/
+.dash_cache/
+__pycache__/

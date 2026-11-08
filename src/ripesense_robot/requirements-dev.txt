@@ -1,0 +1,6 @@
+-r requirements.txt
+pytest
+pyflakes
+ezdxf
+# Image model training (laptop/Colab, not the Pi):
+# torch torchvision onnx

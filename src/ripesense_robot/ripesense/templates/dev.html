@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RipeSense · simulator</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 20px; background: #222; color: #eee; display: flex; gap: 24px; }
+  iframe { width: 480px; height: 320px; border: 8px solid #000; border-radius: 6px; background: #000; }
+  .panel { max-width: 360px; }
+  button { margin: 3px 3px 3px 0; padding: 6px 10px; border-radius: 6px; border: 1px solid #555; background: #333; color: #eee; cursor: pointer; }
+  h3 { margin: 14px 0 6px; font-size: 14px; color: #f5c518; }
+  #cur { font-size: 13px; color: #aaa; }
+  a { color: #9cf; }
+</style>
+</head>
+<body>
+<div><iframe src="/?dev=1"></iframe><p style="font-size:12px;color:#888">480×320, same as the Hosyond 3.5" screen</p></div>
+<div class="panel">
+  <h3>Simulated fruit in the chamber</h3>
+  <div id="types"></div>
+  <div id="stages"></div>
+  <div id="cur"></div>
+  <h3>Hidden bruises (IR)</h3>
+  <button onclick="bruise(0)">none</button><button onclick="bruise(1)">1</button><button onclick="bruise(2)">2</button>
+  <h3>Pull the cable</h3>
+  <label><input type="checkbox" data-s="spectral" checked> spectral</label>
+  <label><input type="checkbox" data-s="gas" checked> gas</label>
+  <label><input type="checkbox" data-s="camera" checked> camera</label>
+  <h3>Door (reed switch)</h3>
+  <button onclick="door(true)">Close door</button><button onclick="door(false)">Open door</button>
+  <h3>Pages</h3>
+  <a href="/collect" target="_blank">/collect</a> · <a href="/store" target="_blank">/store</a>
+</div>
+<script>
+const STAGES = {{ stages|tojson }};
+let ft = "banana";
+async function post(url, body) {
+  const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+  return r.json();
+}
+document.getElementById("types").innerHTML = ["banana", "avocado", "tomato", "apple"].map(t => `<button onclick="ft='${t}';cur()">${t}</button>`).join("");
+document.getElementById("stages").innerHTML = STAGES.map(s => `<button onclick="sim('${s}')">${s}</button>`).join("");
+async function sim(stage) {
+  const r = await post("/api/sim", {fruit_type: ft, stage});
+  document.getElementById("cur").textContent = `now: ${r.fruit_type}, ${r.stage}, true days left ${r.days_left}`;
+}
+function cur() { document.getElementById("cur").textContent = `type set to ${ft}; pick a stage`; }
+async function door(c) { await post("/api/door", {closed: c}); }
+async function bruise(n) { const r = await post("/api/sim", {keep: true, hidden_bruises: n}); document.getElementById("cur").textContent = `hidden bruises: ${r.hidden_bruises}`; }
+document.querySelectorAll("input[data-s]").forEach(cb => cb.onchange = () => post("/api/unplug", {sensor: cb.dataset.s, off: !cb.checked}));
+</script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RipeSense Robot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0b0e11;--card:#151a1f;--card2:#1c2228;--line:#262e36;--text:#f1f5f7;--text2:#a7b4bc;--muted:#6f7d86;
+  --accent:#3ce6b4;--ripe:#22b34a;--spoiled:#e04848;--unripe:#ec835a;--unsure:#f5b31b;--other:#3987e5;--notfruit:#7d7c76;
+  --font:"Space Grotesk",ui-sans-serif,system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 var(--font)}
+.wrap{max-width:1500px;margin:0 auto;padding:18px 20px 40px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+header h1{margin:0;font-size:24px;font-weight:700}
+header h1 b{color:var(--accent)}
+.status{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:600}
+.pill i{width:10px;height:10px;border-radius:50%;background:var(--notfruit)}
+.pill i.ok{background:var(--ripe)}.pill i.busy{background:var(--unsure)}.pill i.bad{background:var(--spoiled)}
+.top{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch;margin-bottom:8px}
+.bar .mbtn{width:auto;flex:0 1 auto;padding:12px 16px}
+.bar .mbtn .ic{width:42px;height:42px;font-size:21px}
+.bar .mbtn b{font-size:18px}.bar .mbtn small{font-size:13.5px}
+.bar .clear{margin-left:auto}
+.bar .stop{width:auto;padding:12px 30px}
+.mbtn.auto.on{border-color:var(--accent);background:rgba(60,230,180,.12)}
+.mbtn.auto.on .ic{background:var(--accent);color:#06140f;animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.mbtn.auto.on .ic{animation:none}}
+@media (max-width:1000px){.top{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;min-width:0}
+h2{margin:0 0 14px;font-size:15px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase}
+/* camera */
+.cam{position:relative;border-radius:14px;overflow:hidden;background:#000;aspect-ratio:4/3}
+.cam img{width:100%;height:100%;object-fit:cover;display:block}
+.cam .off{position:absolute;inset:0;display:none;place-items:center;color:var(--muted);text-align:center;padding:20px}
+.cam.down .off{display:grid}.cam.down img{visibility:hidden}
+.live{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.65);padding:5px 12px;border-radius:8px;font-size:14px;font-weight:700;letter-spacing:.06em}
+.live::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff4d4d;margin-right:8px;animation:b 1.2s infinite}
+@keyframes b{50%{opacity:.2}}
+.now{margin-top:14px;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--card2)}
+.now .dot{width:14px;height:14px;border-radius:50%;background:var(--ripe);flex:none}
+.now.busy .dot{background:var(--unsure);animation:b 1s infinite}
+.now.bad .dot{background:var(--spoiled)}.now.warn .dot{background:var(--unsure)}.now.done .dot{background:var(--accent)}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.step{flex:1 1 0;min-width:110px;padding:9px 12px;border-radius:12px;background:var(--card2);border:2px solid transparent;color:var(--muted);font-size:14.5px;font-weight:600;text-align:center}
+.step.on{border-color:var(--unsure);color:var(--text);background:rgba(245,179,27,.08)}
+.step.ok{color:var(--accent)}.step.ok::before{content:"✓ "}
+.now b{font-size:22px;font-weight:700}.now small{display:block;color:var(--text2);font-size:15px}
+/* missions */
+.missions{display:flex;flex-direction:column;gap:12px}
+.mbtn{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:var(--text);background:var(--card2);border:2px solid var(--line);border-radius:16px;padding:16px 18px;cursor:pointer;transition:border-color .15s,transform .1s}
+.mbtn:hover:not(:disabled){border-color:var(--accent)}.mbtn:active:not(:disabled){transform:scale(.99)}
+.mbtn:disabled{opacity:.4;cursor:not-allowed}
+.mbtn .ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none;background:rgba(60,230,180,.12);color:var(--accent)}
+.mbtn b{display:block;font-size:19px}.mbtn small{display:block;color:var(--text2);font-size:14.5px}
+.mbtn.main{border-color:var(--accent);background:linear-gradient(135deg,rgba(60,230,180,.18),rgba(60,230,180,.04))}
+.mbtn.main .ic{background:var(--accent);color:#06140f}
+.stop{width:100%;font:700 22px var(--font);letter-spacing:.08em;color:#fff;background:var(--spoiled);border:0;border-radius:16px;padding:18px;cursor:pointer}
+.stop:active{transform:scale(.99)}
+.clear{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(245,179,27,.08);border:1px solid rgba(245,179,27,.35);font-size:15px;cursor:pointer}
+.clear input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.msg{min-height:22px;color:var(--accent);font-size:15px}
+/* sorting */
+.bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin-top:18px}
+@media (max-width:1000px){.bottom{grid-template-columns:minmax(0,1fr)}}
+.cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.col{border-radius:16px;background:var(--card2);padding:12px;border-top:5px solid var(--c);min-width:0}
+.col h3{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
+.col h3 .n{margin-left:auto;font-size:26px;font-weight:700}
+.col .where{color:var(--text2);font-size:13.5px;margin:2px 0 10px}
+.fr{display:flex;align-items:center;gap:10px;padding:7px;border-radius:12px;background:rgba(255,255,255,.03);margin-bottom:7px}
+.fr img{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:none;background:#000}
+.fr .num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-weight:700;font-size:13px;flex:none}
+.fr b{display:block;font-size:15.5px;text-transform:capitalize;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr small{color:var(--text2);font-size:13.5px}
+.fr.done{opacity:.55}.fr .tick{margin-left:auto;color:var(--accent);font-weight:700;font-size:13px}
+.empty{color:var(--muted);font-size:14px;padding:6px 2px}
+.ico{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;background:var(--c);color:#fff;font-weight:700;font-size:14px}
+.check{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(245,179,27,.08);border:1px solid rgba(245,179,27,.3);font-size:15px}
+.check b{color:var(--unsure)}
+/* map */
+.map svg{width:100%;height:auto;display:block}
+.mapkey{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;color:var(--text2);font-size:14px}
+.mapkey span{display:inline-flex;align-items:center;gap:6px}
+.mapkey i{width:14px;height:14px;border-radius:50%;background:var(--c)}
+.foot{margin-top:16px;color:var(--muted);font-size:13.5px;text-align:right}.foot a{color:var(--text2)}
+</style></head>
+<body><div class="wrap">
+<header>
+  <h1>RipeSense <b>Robot</b></h1>
+  <div class="status" id="status"><span class="pill"><i></i>connecting…</span></div>
+</header>
+
+<div class="bar">
+  <button class="mbtn main" data-job="demo"><span class="ic">▶</span><span><b>Full demo</b><small>front → table → ripe &amp; spoiled into their bins</small></span></button>
+  <button class="mbtn auto" id="auto"><span class="ic">⟳</span><span><b id="autot">Autopilot: OFF</b><small id="autos">keeps searching and picking on its own</small></span></button>
+  <button class="mbtn" data-job="search"><span class="ic">◎</span><span><b>Search</b><small>find &amp; sort, no picking</small></span></button>
+  <button class="mbtn" data-job="sort"><span class="ic">⤓</span><span><b>Sort into bins</b><small>ripe, then spoiled, whole table</small></span></button>
+  <label class="clear"><input type="checkbox" id="clear"> Nobody in front of the robot</label>
+  <button class="stop" id="stop">■ STOP</button>
+</div>
+<div class="msg" id="msg"></div>
+
+<div class="top">
+  <section class="card">
+    <div class="cam" id="cam"><img id="camimg" alt="Live camera on the robot's wrist"><span class="live">LIVE</span>
+      <div class="off">Camera not connected.<br>Waiting for the robot…</div></div>
+    <div class="now" id="now"><span class="dot"></span><div><b id="nowt">Ready</b><small id="nows">Press a mission to start.</small></div></div>
+    <div class="steps" id="steps"></div>
+  </section>
+  <section class="card">
+    <h2>Positions on the table</h2>
+    <div class="map" id="map"></div>
+    <div class="mapkey" id="mapkey"></div>
+  </section>
+</div>
+
+<section class="card" style="margin-top:18px">
+  <h2>Sorting</h2>
+  <div class="cols" id="cols"></div>
+  <div class="check" id="check" hidden></div>
+</section>
+<div class="foot">Every scan is stored in Tiger Data · <a href="/classic">detailed view</a></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = v => Math.round((v || 0) * 100) + '%';
+const name = c => String(c || '').replace(/_(fresh|ripe|rotten|unripe|overripe)$/, '').replace(/_/g, ' ');
+const crop = p => p ? '/api/crop?p=' + encodeURIComponent(p) : '';
+const COLS = [
+  ['ripe', 'Ripe', '✓', 'var(--ripe)', 'goes in the ripe bin'],
+  ['spoiled', 'Spoiled', '✕', 'var(--spoiled)', 'goes in the spoiled bin'],
+  ['unripe', 'Unripe', '◷', 'var(--unripe)', 'left to ripen'],
+  ['unsure', 'Not sure', '?', 'var(--unsure)', 'needs a closer look']];
+const catOf = (cls, conf) => conf < 0.5 ? 'unsure' : cls === 'not_fruit' || cls === 'other_fruit' ? 'other'
+  : /_rotten$/.test(cls) ? 'spoiled' : /_unripe$/.test(cls) ? 'unripe' : 'ripe';
+const colour = k => (COLS.find(c => c[0] === k) || [0, 0, 0, 'var(--notfruit)'])[3];
+let ST = {}, SEARCH = {}, FRUITS = [], NEXT = [], BIN = null, LOG = '';
+
+/* camera */
+const img = $('#camimg'), camOn = () => img.src = 'http://localhost:8091/stream?t=' + Date.now();
+img.onload = () => $('#cam').classList.remove('down');
+img.onerror = () => { $('#cam').classList.add('down'); setTimeout(camOn, 3000); };
+camOn();
+
+/* missions */
+const ASK = {demo: 'Full demo: the robot looks in front, scans the table, then puts every ripe fruit in the bin. Start?',
+             sort: 'Pick every ripe fruit on the table and put it in the bin?'};
+document.querySelectorAll('[data-job]').forEach(b => b.onclick = async () => {
+  const job = b.dataset.job;
+  if ((job === 'demo' || job === 'search') && !$('#clear').checked) { $('#msg').textContent = 'First tick “Nobody is standing in front of the robot”.'; return; }
+  if (ASK[job] && !confirm(ASK[job])) return;
+  $('#msg').textContent = 'Starting…';
+  const r = await fetch('/api/run/' + job, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({front_clear: $('#clear').checked})});
+  const j = await r.json(); $('#msg').textContent = j.ok ? 'Started.' : (j.msg || 'Could not start.');
+  $('#clear').checked = false; setTimeout(pollStatus, 700);
+});
+$('#auto').onclick = async () => {
+  if (ST.autopilot) {
+    if (!confirm('Turn the autopilot OFF? It finishes the current fruit, then stops.')) return;
+    const j = await (await fetch('/api/auto_off', {method: 'POST'})).json(); $('#msg').textContent = j.msg; setTimeout(pollStatus, 500); return;
+  }
+  const front = $('#clear').checked;
+  if (!confirm('Turn the AUTOPILOT on?\n\nThe robot keeps working on its own: it searches the table' + (front ? ' (and in front)' : ' (front views OFF: tick “Nobody in front” to include them)') +
+    ', puts every ripe fruit in the bin, waits 30 s, and repeats. New fruit you add get picked automatically.\n\nSTOP halts it at any time.')) return;
+  $('#msg').textContent = 'Starting the autopilot…';
+  const r = await fetch('/api/run/auto', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({front_clear: front})});
+  const j = await r.json(); $('#msg').textContent = j.ok ? 'Autopilot is ON.' : (j.msg || 'Could not start.'); $('#clear').checked = false; setTimeout(pollStatus, 700);
+};
+$('#stop').onclick = async () => { $('#msg').textContent = 'Stopping…'; const j = await (await fetch('/api/stop', {method: 'POST'})).json(); $('#msg').textContent = j.ok ? 'Robot stopped.' : 'STOP may have failed: use the Studio stop button!'; setTimeout(pollStatus, 500); };
+
+/* status + "now" line */
+const pill = (c, t) => `<span class="pill"><i class="${c}"></i>${esc(t)}</span>`;
+const JOBNAME = {auto: 'Autopilot', demo: 'Full demo', search: 'Search', sort: 'Ripe fruit → bin', search_front: 'Front search', search_floor: 'Table search', inspect: 'Inspect', pick: 'Pick test'};
+function binnedSoFar() { return (LOG.match(/released in the bin/g) || []).length; }
+function spoiledSoFar() { return (LOG.match(/released in the spoiled bin/g) || []).length; }
+function lastLine(re) { const l = LOG.trim().split('\n').reverse().find(x => re.test(x)); return l ? l.replace(/=+/g, '').trim() : ''; }
+function activity() {
+  for (const l of LOG.trim().split('\n').reverse()) {
+    let m;
+    if (/released in the spoiled bin/.test(l)) return 'Dropped in the SPOILED bin, going for the next one';
+    if (/released in the bin/.test(l)) return 'Dropped in the ripe bin, going for the next fruit';
+    if (/^=== SPOILED picking from view/.test(l)) return 'Spoiled fruit → spoiled bin · ' + l.replace(/^=== SPOILED picking from /, '');
+    if ((m = l.match(/spoiled fruit to put in the spoiled bin: (\d+)/))) return m[1] === '0' ? 'No spoiled fruit in this view' : `${m[1]} spoiled fruit in this view`;
+    if (/carrying/.test(l)) return 'Carrying to the bin, lowering it in from above';
+    if ((m = l.match(/^\[(\d+)\/(\d+)\] (\S+)/))) return `Picking ${name(m[3])} (${m[1]} of ${m[2]} here), gentle grip`;
+    if ((m = l.match(/ripe fruit to put in the bin: (\d+)/))) return m[1] === '0' ? 'No ripe fruit in this view' : `${m[1]} ripe fruit in this view`;
+    if (/found \d+ objects/.test(l)) return 'Looking at the fruit in this view';
+    if (/front heading/.test(l) || SEARCH.phase === 'front search') return 'Looking in front (bush / tree height)';
+    if (/floor view|untwisting/.test(l) || SEARCH.phase === 'floor search') return 'Scanning the table' + (SEARCH.view ? ' · ' + SEARCH.view : '');
+    if (/^=== (AUTO cycle \d+: )?picking from view/.test(l)) return 'Moving to the next view';
+    if (/OUT OF REACH/.test(l)) return 'A fruit is out of reach, skipping it';
+  }
+  return 'Starting…';
+}
+function nowState() {
+  const j = ST.job || [], state = j[0], job = j[1] || '', nm = JOBNAME[job] || job, n = binnedSoFar();
+  if (ST.busy && job === 'auto') {
+    const cyc = (lastLine(/^=== AUTO cycle/).match(/cycle (\d+)/) || [])[1] || 1, waiting = /waiting/.test(lastLine(/^=== AUTO/));
+    return {cls: 'busy', t: 'Autopilot ON · cycle ' + cyc, s: (waiting ? 'Waiting for new fruit…' : activity()) + ` · ${n} in the bin so far`};
+  }
+  if (ST.busy) {
+    const step = lastLine(/^=== STEP/), view = lastLine(/^=== picking from view/);
+    return {cls: 'busy', t: nm + (step ? ' · ' + step.replace(/^STEP /, 'step ').replace(/:.*/, '') : ''),
+            s: activity() + (n || spoiledSoFar() ? ` · ripe bin ${n} · spoiled bin ${spoiledSoFar()}` : '') + (view && /STEP 2|STEP 1\/1/.test(step) ? ' · ' + view.replace('picking from ', '') : '')};
+  }
+  if (!state) return {cls: '', t: 'Ready', s: 'Press a mission to start.'};
+  if (state === 'stopped') return {cls: 'warn', t: nm + ' stopped', s: 'The robot was halted with STOP.' + (n ? ` ${n} fruit had been put in the bin.` : '')};
+  if (state === 'failed') return {cls: 'bad', t: nm + ' failed', s: (lastLine(/MISSION FAILED|ERROR|refused|cannot|Error/) || 'see the detailed view') + ' · press a mission to try again'};
+  if (job === 'auto') return {cls: state === 'done' ? 'done' : 'warn', t: 'Autopilot off', s: `${n} ripe fruit put in the bin` + (state === 'failed' ? ' · stopped after a failed step: ' + lastLine(/AUTOPILOT STOPPED|ERROR/) : '')};
+  if (/demo|sort/.test(job)) {
+    const left = fruitList().filter(i => !i.inBin), sp = left.filter(i => i.cat === 'spoiled').length, un = left.filter(i => i.cat === 'unripe').length;
+    const ns = spoiledSoFar();
+    return {cls: 'done', t: 'Mission complete', s: `${n} ripe → ripe bin · ${ns} spoiled → spoiled bin` + (un ? ` · ${un} unripe left to ripen` : '')};
+  }
+  if (/search/.test(job)) return {cls: 'done', t: 'Search complete', s: `${fruitList().length} fruit found and sorted · press “Ripe fruit → bin” to pick them`};
+  return {cls: 'done', t: nm + ' complete', s: 'Press a mission to start.'};
+}
+function drawSteps() {
+  const job = (ST.job || [])[1] || '', busy = !!ST.busy;
+  let st = [];
+  if (/^demo/.test(job)) st = ['Look in front', 'Scan table', 'Ripe → ripe bin', 'Spoiled → spoiled bin'];
+  else if (/^sort/.test(job)) st = ['Ripe → ripe bin', 'Spoiled → spoiled bin'];
+  else if (/^search/.test(job)) st = ['Look in front', 'Scan table'];
+  if (!st.length) { $('#steps').innerHTML = ''; return; }
+  const last = lastLine(/^=== (STEP|SPOILED|picking)/), act = activity();
+  let cur = 0;
+  if (/SPOILED/.test(last)) cur = st.length - 1;
+  else if (/picking from view|STEP 2|STEP 1\/1/.test(last)) cur = st.indexOf('Ripe → ripe bin');
+  else cur = /front/i.test(act) ? 0 : 1;
+  const done = !busy && (ST.job || [])[0] === 'done';
+  $('#steps').innerHTML = st.map((t, i) => `<div class="step ${done || i < cur ? 'ok' : busy && i === cur ? 'on' : ''}">${t}</div>`).join('');
+}
+async function pollStatus() {
+  try {
+    const wasBusy = !!ST.busy;
+    const s = ST = await (await fetch('/api/status')).json(); const a = s.arm || {}, p = [];
+    p.push(s.pi === false || !a.connected ? pill('bad', 'Robot offline') : a.error ? pill('bad', 'Robot error ' + a.error) : pill(s.busy ? 'busy' : 'ok', s.busy ? 'Robot working' : 'Robot ready'));
+    p.push(pill('ok', 'Tiger Data connected'));
+    $('#status').innerHTML = p.join('');
+    document.querySelectorAll('[data-job]').forEach(b => b.disabled = !!s.busy);
+    const ap = $('#auto'); ap.classList.toggle('on', !!s.autopilot); ap.disabled = !!s.busy && !s.autopilot;
+    $('#autot').textContent = s.autopilot ? (s.autopilot_stopping ? 'Autopilot: stopping…' : 'Autopilot: ON') : 'Autopilot: OFF';
+    $('#autos').textContent = s.autopilot ? 'tap to turn off' : 'keeps searching and picking on its own';
+    drawNow(); if (!wasBusy && s.busy) { SEARCH = {}; } draw();
+  } catch (e) { $('#status').innerHTML = pill('bad', 'Dashboard offline'); }
+}
+function drawNow() { const n = nowState(); $('#nowt').textContent = n.t; $('#nows').textContent = n.s; $('#now').className = 'now ' + n.cls; drawSteps(); }
+async function pollLog() { try { LOG = (await (await fetch('/api/log')).json()).log || ''; } catch (e) {} drawNow(); }
+
+/* data */
+async function pollSearch() { try { SEARCH = await (await fetch('/api/search')).json(); } catch (e) {} draw(); }
+async function pollTiger() {
+  try { const f = await (await fetch('/api/fruits')).json(); if (!f.error) FRUITS = f; } catch (e) {}
+  try { const n = await (await fetch('/api/next')).json(); if (!n.error) NEXT = n; } catch (e) {}
+  draw();
+}
+let SBIN = null;
+const loadBins = () => fetch('/api/bin').then(r => r.json()).then(b => { BIN = b.ripe_bin || null; SBIN = b.spoiled_bin || null; drawMap(); }).catch(() => {});
+loadBins(); setInterval(loadBins, 30000);
+
+/* FRESH START per run: the list is only the current search (live while it runs), numbered 1..N for this run
+   (nearest the robot first); "in bin" only counts drops made after this search. Older runs stay in Tiger only. */
+function freshScanStarting() {
+  const j = ST.job || [], started = +j[2] || 0;
+  if (!ST.busy || !/^(demo|search)/.test(j[1] || '')) return false;
+  const liveSearch = SEARCH.phase && !SEARCH.done && SEARCH.phase !== 'no search yet';
+  return !liveSearch && !((SEARCH.finished || 0) >= started);
+}
+function fruitList() {
+  if (freshScanStarting()) return [];
+  const since = (SEARCH.finished || 0) * 1000;
+  const binned = new Set(FRUITS.filter(f => /^to_(spoiled_)?bin$/.test(f.action || '') && new Date(f.ts).getTime() >= since - 60000).map(f => f.fruit_id));
+  const crops = Object.fromEntries(FRUITS.map(f => [f.fruit_id, f.crop_path]));
+  return (SEARCH.items || []).filter(i => i.cls !== 'not_fruit')
+    .map(i => ({...i, cat: catOf(i.cls, i.conf), inBin: !!SEARCH.done && binned.has(i.fid), crop: crops[i.fid]}))
+    .sort((a, b) => Math.hypot(a.x, a.y) - Math.hypot(b.x, b.y))
+    .map((i, k) => ({...i, n: k + 1}));
+}
+function draw() { drawCols(); drawMap(); }
+
+function drawCols() {
+  const list = fruitList();
+  $('#cols').innerHTML = COLS.map(([k, t, ic, c, where]) => {
+    const it = list.filter(i => i.cat === k);
+    return `<div class="col" style="--c:${c}"><h3><span class="ico" style="--c:${c}">${ic}</span>${t}<span class="n">${it.length}</span></h3><div class="where">${where}</div>` +
+      (it.length ? it.map(i => `<div class="fr ${i.inBin ? 'done' : ''}" style="--c:${c}">
+        ${i.thumb ? `<img alt="" src="data:image/jpeg;base64,${i.thumb}">` : i.crop ? `<img alt="" src="${crop(i.crop)}">` : ''}
+        <div style="min-width:0"><b>${esc(name(i.cls))}</b><small>${pct(i.conf)} sure</small></div>
+        ${i.inBin ? '<span class="tick">IN BIN ✓</span>' : `<span class="num" style="margin-left:auto">${i.n}</span>`}</div>`).join('')
+        : `<div class="empty">${freshScanStarting() || (ST.busy && !SEARCH.done) ? 'scanning…' : 'none'}</div>`) + '</div>';
+  }).join('');
+  const n = NEXT[0], hit = n && list.find(i => i.fid === n.fruit_id && !i.inBin);
+  $('#check').hidden = !hit;
+  if (hit) $('#check').innerHTML = `<b>Check next:</b> fruit ${hit.n} (${esc(name(n.cls))}): ${esc(n.why)}.`;
+}
+
+/* top view of the table */
+function drawMap() {
+  const W = 520, H = 460, X0 = 180, X1 = 780, Y0 = -460, Y1 = 400;   // table area in arm mm: x forward (up), y left
+  const sx = y => 20 + (Y1 - y) / (Y1 - Y0) * (W - 40), sy = x => 20 + (X1 - x) / (X1 - X0) * (H - 70);
+  let g = `<rect x="10" y="10" width="${W - 20}" height="${H - 60}" rx="16" fill="#e9dcc4" opacity=".14" stroke="#e9dcc4" stroke-opacity=".35"/>
+    <text x="${W / 2}" y="34" text-anchor="middle" font-size="14" fill="#a7b4bc">front of the table ↑</text>`;
+  // robot at the bottom middle
+  const rx = sx(0), ry = H - 26;
+  g += `<rect x="${rx - 44}" y="${ry - 16}" width="88" height="32" rx="10" fill="#26303a" stroke="#3a4651"/><text x="${rx}" y="${ry + 5}" text-anchor="middle" font-size="14" font-weight="700" fill="#f1f5f7">ROBOT</text>`;
+  if (BIN && BIN.pose) { const bx = Math.max(60, Math.min(W - 60, sx(BIN.pose[1]))), by = Math.min(H - 26, sy(BIN.pose[0]));
+    g += `<rect x="${bx - 44}" y="${by - 18}" width="88" height="36" rx="10" fill="rgba(60,230,180,.15)" stroke="#3ce6b4" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="${bx}" y="${by + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#3ce6b4">RIPE BIN</text>`; }
+  if (SBIN && SBIN.pose) { const bx = Math.max(60, Math.min(W - 60, sx(SBIN.pose[1]))), by = Math.min(H - 26, sy(SBIN.pose[0]));
+    g += `<rect x="${bx - 52}" y="${by - 18}" width="104" height="36" rx="10" fill="rgba(224,72,72,.15)" stroke="#e04848" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="${bx}" y="${by + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#ff7a7a">SPOILED BIN</text>`; }
+  const pose = ST.arm && ST.arm.pose;
+  if (pose && pose[0] > X0 - 40) { const gx = sx(pose[1]), gy = sy(pose[0]);
+    g += `<circle cx="${gx}" cy="${gy}" r="14" fill="none" stroke="#f1f5f7" stroke-width="2" stroke-dasharray="3 3"/><text x="${gx}" y="${gy - 20}" text-anchor="middle" font-size="12" fill="#f1f5f7">gripper</text>`; }
+  for (const i of fruitList()) {
+    if (i.where === 'front') continue;
+    const x = sx(i.y), y = sy(i.x), c = colour(i.cat);
+    if (x < 10 || x > W - 10 || y < 10 || y > H - 50) continue;
+    g += i.inBin ? `<circle cx="${x}" cy="${y}" r="13" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="3 3" opacity=".6"/>`
+      : `<circle cx="${x}" cy="${y}" r="15" fill="${c}" stroke="#0b0e11" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">${i.n}</text>`;
+  }
+  $('#map').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Top view of the table with numbered fruit positions">${g}</svg>`;
+  $('#mapkey').innerHTML = COLS.map(([k, t, , c]) => `<span><i style="--c:${c}"></i>${t}</span>`).join('') + '<span><i style="--c:transparent;border:2px dashed var(--muted)"></i>In the bin</span>';
+}
+
+pollStatus(); pollLog(); pollSearch(); pollTiger();
+setInterval(pollStatus, 3000); setInterval(pollLog, 1500); setInterval(pollSearch, 2000); setInterval(pollTiger, 5000);
+</script>
+</body></html>

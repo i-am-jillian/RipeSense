@@ -1,0 +1,37 @@
+# RipeSense xArm6 fruit sorter -- runs on the Raspberry Pi 5 (user sujal, ~/ripesense_env)
+arm:
+  ip: 192.168.1.232          # xArm6 SN XI1305, fw 2.5.1
+  model: xarm6
+  gripper: ufactory_gripper   # UFACTORY general gripper (G1); F/T sensor between flange and gripper
+  gripper_length_mm: 230       # flange face -> closed fingertips
+  collision_sensitivity: 3
+
+camera:                       # Intel RealSense D435 (same unit as the drone tracker), wrist-mounted
+  width: 640
+  height: 480
+  fps: 30
+  # colour intrinsics measured 2026-10-26 for the drone tracker (~/UAV_Tracking_pipeline/tracking-ibvs-mpc/configs/default.yaml)
+  fx: 607.5
+  fy: 607.4
+  cx: 324.9
+  cy: 240.4
+  hfov_deg: 55.6
+  # camera(colour optical) -> flange (xyz m, rpy rad, xArm Rz*Ry*Rx), 2026-11-08:
+  #   rotation + x/y: 15-pose ChArUco eye-in-hand solve with the TRUE printed square (23.3 mm, board printed at 93%)
+  #   z: F/T touch-down (fingertips touched the paper at z -264.8 mm, base frame, rail at 210 mm) matched to corrected depth
+  #   (board-PnP gives 0.1131, depth 0.1069 -> depth value used because picking runs on depth)
+  eef_to_color: [0.138217, -0.032252, 0.1069, 0.060715, 0.007954, 1.592395]
+  depth_scale_correction: 0.9762      # this D435IF reads 2.4% long at ~0.5 m (depth vs ruler-measured board)
+  calib_rail_pos_mm: 210              # linear track position during calibration
+  table_z_mm: -264.8                  # fingertip contact height (gripper 230 mm), base frame at rail 210
+  eef_to_color_ufactory_bracket: [0.067052239, -0.0311387575, 0.021611456, -0.004202176, -0.00848499, 1.5898775]
+
+spectral:                     # AS7341 in the cradle, I2C bus 1 address 0x39 (not detected yet 2026-11-07)
+  i2c_bus: 1
+  address: 0x39
+  gain: 64
+  atime: 100
+  astep: 999
+
+classifier:
+  model: robot_fruit_model.onnx   # MobileNetV3-Small, 14 fruit_state classes (robot/train_robot_fruit.py)

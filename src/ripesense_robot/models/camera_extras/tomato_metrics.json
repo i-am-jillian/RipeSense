@@ -1,0 +1,68 @@
+{
+  "classes": [
+    "fresh",
+    "spoiled"
+  ],
+  "val": {
+    "n": 572,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "confusion": [
+      [
+        99,
+        0
+      ],
+      [
+        0,
+        473
+      ]
+    ]
+  },
+  "test": {
+    "n": 554,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "confusion": [
+      [
+        94,
+        0
+      ],
+      [
+        0,
+        460
+      ]
+    ]
+  },
+  "chosen_C": 0.003,
+  "validation": [
+    {
+      "C": 0.003,
+      "macro_f1": 1.0
+    },
+    {
+      "C": 0.03,
+      "macro_f1": 1.0
+    },
+    {
+      "C": 0.3,
+      "macro_f1": 1.0
+    }
+  ],
+  "counts": {
+    "train/spoiled": 500,
+    "test/spoiled": 460,
+    "test/fresh": 94,
+    "train/fresh": 500,
+    "val/spoiled": 473,
+    "val/fresh": 99
+  },
+  "groups": {
+    "train": 374,
+    "val": 200,
+    "test": 200
+  },
+  "split": "Source photo groups held out; original author splits retained",
+  "scope": "Tomato visible fresh / spoiled labels",
+  "source": "https://data.mendeley.com/datasets/vy5y8p2kdb/1",
+  "license": "CC BY 4.0"
+}

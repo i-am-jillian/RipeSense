@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RipeSense · data collection</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f6f7f6; color: #1d2320; }
+  header { background: #111; color: #fff; padding: 12px 20px; display: flex; gap: 20px; align-items: baseline; }
+  header b { color: #f5c518; } header a { color: #bbb; font-size: 14px; }
+  main { padding: 16px 20px; display: grid; grid-template-columns: 340px 1fr; gap: 18px; }
+  section { background: #fff; border: 1px solid #e3e6e4; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  label { display: block; font-size: 12px; color: #5b635f; margin: 8px 0 3px; }
+  input, select { width: 100%; padding: 7px 8px; border: 1px solid #cfd5d2; border-radius: 6px; font: inherit; box-sizing: border-box; }
+  button { padding: 8px 12px; border-radius: 6px; border: 1px solid #c7cdca; background: #fff; font: inherit; cursor: pointer; margin-top: 10px; }
+  button.primary { background: #f5c518; border-color: #e0b30f; font-weight: 600; }
+  .status { font-size: 13px; color: #5b635f; margin-top: 8px; min-height: 18px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 5px 6px; border-bottom: 1px solid #eceeed; text-align: left; vertical-align: middle; }
+  th { font-weight: 600; color: #5b635f; font-size: 12px; position: sticky; top: 0; background: #fff; }
+  td img { width: 48px; height: 36px; object-fit: cover; border-radius: 4px; }
+  td select, td input { padding: 3px 4px; font-size: 12px; }
+  .tablewrap { max-height: 70vh; overflow: auto; }
+  .muted { color: #8a918d; font-size: 12px; }
+  .metric { font-size: 13px; line-height: 1.6; }
+  #imp { width: 100%; margin-top: 8px; border-radius: 6px; display: none; }
+  .ok { color: #2f7d32; } .bad { color: #b23b3b; }
+</style>
+</head>
+<body>
+<header><span><b>Ripe</b>Sense · data collection</span><a href="/" target="_blank">kiosk</a><a href="/store">store dashboard</a><span class="muted" id="hdr"></span></header>
+<main>
+<div>
+  <section>
+    <h2>1 · Fruit in the chamber</h2>
+    <p class="muted" style="margin:0">Number each fruit with a marker. 3 scans per fruit per session, turning it between scans.</p>
+    <label>Fruit ID</label><input id="fruit_id" placeholder="B01">
+    <label>Fruit type</label>
+    <input id="fruit_type" list="types" placeholder="banana">
+    <datalist id="types"><option>banana</option><option>avocado</option><option>tomato</option><option>apple</option></datalist>
+    <label>Stage label (peel chart; can edit later)</label>
+    <select id="stage_label"><option value="">— unlabelled —</option>
+      {% for s in stages %}<option value="{{s}}">{{ stage_label[s] }}</option>{% endfor %}
+    </select>
+    <button class="primary" onclick="scan()">Scan</button>
+    <div class="status" id="status"></div>
+  </section>
+
+  <section>
+    <h2>2 · When a fruit spoils</h2>
+    <p class="muted" style="margin:0">Back-fills days-left for every scan of that fruit (days from scan to this date).</p>
+    <label>Fruit ID</label><input id="sp_id" placeholder="B01">
+    <label>Judged spoiled on</label><input id="sp_date" type="date">
+    <button onclick="spoiled()">Mark spoiled</button>
+    <div class="status" id="spStatus"></div>
+  </section>
+
+  <section>
+    <h2>Calibration</h2>
+    <p class="muted" style="margin:0">Put the white cal puck in the cradle, close the door, then press. Repeat each session.</p>
+    <button onclick="calibrate()">Calibrate white reference</button>
+    <div class="status" id="calStatus"></div>
+  </section>
+
+  <section>
+    <h2>3 · Train</h2>
+    <button class="primary" onclick="train()">Train fusion model</button>
+    <div class="status" id="trainStatus"></div>
+    <div class="metric" id="metrics"></div>
+    <img id="imp" alt="feature importance">
+  </section>
+</div>
+
+<section>
+  <h2>Most useful to label next <span class="muted">(active learning: the scans the model was least sure about)</span></h2>
+  <div id="queue" class="muted">loading…</div>
+</section>
+<section>
+  <h2>Recent scans <span class="muted" id="count"></span> · <a href="/data/scans.csv">scans.csv</a></h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>time</th><th></th><th>fruit</th><th>type</th><th>stage label</th><th>days left</th><th>predicted</th><th>sensors</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+</section>
+</main>
+
+<script>
+const STAGES = {{ stages|tojson }};
+const LABEL = {{ stage_label|tojson }};
+const $ = id => document.getElementById(id);
+{ const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); document.getElementById("sp_date").value = d.toISOString().slice(0, 10); }
+
+async function post(url, body) {
+  const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+  return r.json();
+}
+async function setCollect() {
+  return post("/api/collect", {fruit_id: $("fruit_id").value, fruit_type: $("fruit_type").value, stage_label: $("stage_label").value});
+}
+["fruit_id", "fruit_type", "stage_label"].forEach(id => $(id).addEventListener("change", setCollect));
+
+async function scan() {
+  await setCollect();
+  const r = await post("/api/scan");
+  if (!r.started) $("status").textContent = r.state === "close_door" ? "Close the door first." : "A scan is already running.";
+  pollStatus();
+}
+let lastState = null;
+async function pollStatus() {
+  const st = await (await fetch("/api/status")).json();
+  $("hdr").textContent = (st.mock ? "MOCK · " : "") + (st.trained ? "model trained" : "model not trained") + (st.calibrated ? " · calibrated" : " · not calibrated");
+  if (st.state === "scanning") $("status").textContent = `${st.message} (${Math.round(st.progress*100)}%)`;
+  else if (st.state === "result" && st.result) $("status").innerHTML = `Done: <b>${st.result.stage_label}</b> ${Math.round(st.result.confidence*100)}% · scan #${st.result.scan_id} in ${st.result.elapsed_s}s`;
+  else if (st.state === "error") $("status").innerHTML = `<span class="bad">${st.message}</span>`;
+  if (lastState === "scanning" && st.state !== "scanning") loadRows();
+  lastState = st.state;
+  setTimeout(pollStatus, st.state === "scanning" ? 500 : 2000);
+}
+
+function dots(a) {
+  try { a = JSON.parse(a); } catch { return ""; }
+  const m = {agree: "●", disagree: "○", missing: "·"};
+  return ["camera", "spectral", "gas"].map(k => `<span title="${k}: ${a[k]}">${m[a[k]] || "·"}</span>`).join(" ");
+}
+async function loadRows() {
+  const rows = await (await fetch("/api/scans?limit=300")).json();
+  $("count").textContent = `(${rows.length})`;
+  $("rows").innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.scan_id}</td>
+      <td class="muted">${(r.timestamp || "").replace("T", " ").slice(5, 16)}</td>
+      <td>${r.rgb_path ? `<img src="/data/${r.rgb_path}">` : ""}</td>
+      <td><input value="${r.fruit_id || ""}" size="5" onchange="label(${r.scan_id}, 'fruit_id', this.value)"></td>
+      <td>${r.fruit_type || ""}</td>
+      <td><select onchange="label(${r.scan_id}, 'stage_label', this.value)">
+        <option value="">—</option>${STAGES.map(s => `<option value="${s}" ${s === r.stage_label ? "selected" : ""}>${LABEL[s]}</option>`).join("")}
+      </select></td>
+      <td><input value="${r.days_left_label || ""}" size="3" onchange="label(${r.scan_id}, 'days_left_label', this.value)"></td>
+      <td>${LABEL[r.pred_stage] || r.pred_stage || ""} <span class="muted">${r.pred_conf ? Math.round(r.pred_conf * 100) + "%" : ""}</span></td>
+      <td>${dots(r.agreement)}</td>
+    </tr>`).join("");
+}
+async function label(id, k, v) { await post(`/api/label/${id}`, {[k]: v}); loadQueue(); }
+async function loadQueue() {
+  const q = await (await fetch("/api/label_queue?limit=8")).json();
+  document.getElementById("queue").innerHTML = q.length ? q.map(r =>
+    `<span style="display:inline-block;margin:4px 8px 4px 0;text-align:center;font-size:12px">` +
+    (r.rgb_path ? `<img src="/data/${r.rgb_path}" style="width:84px;height:63px;object-fit:cover;border-radius:6px;display:block">` : "") +
+    `#${r.scan_id} ${r.fruit_id || ""} · ${r.pred_stage || "?"} ${r.pred_conf ? Math.round(r.pred_conf * 100) + "%" : ""}<br>` +
+    `<select onchange="label(${r.scan_id}, 'stage_label', this.value)"><option value="">label…</option>${STAGES.map(s => `<option>${s}</option>`).join("")}</select></span>`).join("")
+    : "Nothing waiting: every scan is labelled.";
+}
+loadQueue(); setInterval(loadQueue, 15000);
+async function spoiled() {
+  const r = await post("/api/spoiled", {fruit_id: $("sp_id").value, date: $("sp_date").value});
+  $("spStatus").textContent = r.error || `Updated ${r.updated} scans`;
+  loadRows();
+}
+async function calibrate() {
+  $("calStatus").textContent = "Reading…";
+  const r = await post("/api/calibrate");
+  $("calStatus").innerHTML = r.ok ? `<span class="ok">Saved ${r.ref.timestamp}</span>` : `<span class="bad">${r.error}</span>`;
+}
+async function train() {
+  await post("/api/train");
+  $("trainStatus").textContent = "Training…";
+  const tick = async () => {
+    const s = await (await fetch("/api/train")).json();
+    if (s.running) return setTimeout(tick, 1000);
+    const l = s.last;
+    if (!l) return;
+    if (!l.ok) { $("trainStatus").innerHTML = `<span class="bad">${l.error}</span>`; return; }
+    $("trainStatus").innerHTML = `<span class="ok">Trained ${l.at}</span>`;
+    const m = l.metrics || {};
+    const imp = l.importance || {};
+    $("metrics").innerHTML = (m.n_scans ? `${m.n_scans} scans · ${m.n_fruits} fruits (CV held out by fruit)<br>
+      stage macro-F1 <b>${m.stage_macro_f1.toFixed(2)}</b> · accuracy ${m.stage_accuracy.toFixed(2)}` +
+      (m.days_mae != null ? `<br>days-left MAE <b>${m.days_mae.toFixed(2)} d</b>` : "") : "Too few fruits for cross-validation") +
+      `<br>camera ${Math.round((imp.camera||0)*100)}% · spectral ${Math.round((imp.spectral||0)*100)}% · gas ${Math.round((imp.gas||0)*100)}%`;
+    $("imp").src = "/model/feature_importance.png?" + Date.now(); $("imp").style.display = "block";
+  };
+  tick();
+}
+loadRows(); pollStatus();
+</script>
+</body>
+</html>

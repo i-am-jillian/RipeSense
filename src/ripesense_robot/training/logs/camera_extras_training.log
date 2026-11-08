@@ -1,0 +1,12 @@
+tomato rows {('train', 'spoiled'): 500, ('test', 'spoiled'): 460, ('test', 'fresh'): 94, ('train', 'fresh'): 500, ('val', 'spoiled'): 473, ('val', 'fresh'): 99} groups {'train': 374, 'val': 200, 'test': 200}
+tomato features 0 / 2126
+tomato features 512 / 2126
+tomato features 1024 / 2126
+tomato features 1536 / 2126
+tomato features 2048 / 2126
+tomato TEST {"n": 554, "accuracy": 1.0, "macro_f1": 1.0, "confusion": [[94, 0], [0, 460]]}
+avocado rows {('val', 'unripe'): 50, ('train', 'overripe'): 200, ('test', 'ripe_second_stage'): 50, ('train', 'ripe_second_stage'): 200, ('val', 'breaking'): 50, ('train', 'unripe'): 200, ('train', 'ripe_first_stage'): 200, ('val', 'ripe_first_stage'): 50, ('val', 'ripe_second_stage'): 50, ('test', 'breaking'): 50, ('val', 'overripe'): 50, ('test', 'overripe'): 50, ('train', 'breaking'): 200, ('test', 'ripe_first_stage'): 50, ('test', 'unripe'): 50} groups {'train': 302, 'val': 67, 'test': 63}
+avocado features 0 / 1500
+avocado features 512 / 1500
+avocado features 1024 / 1500
+avocado TEST {"n": 250, "accuracy": 0.624, "macro_f1": 0.6223349436066627, "confusion": [[30, 0, 8, 1, 11], [0, 34, 5, 11, 0], [6, 2, 28, 14, 0], [0, 15, 14, 21, 0], [7, 0, 0, 0, 43]]}

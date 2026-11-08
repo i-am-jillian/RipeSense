@@ -1,0 +1,37 @@
+/* RipeSense insight panels (camera demo page). Dark surface. */
+.viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1d1c; --surface-2: #222625; --line: #2e3432;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8b9490;
+  --series-1: #3987e5;
+  --accent: #f5c518;
+  --z-unripe: #5cb85c; --z-ripe: #f5c518; --z-ripe_to_overripe: #f59e0b; --z-overripe: #d9622b; --z-spoiled: #b23b3b;
+}
+.ins { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; margin-top: 14px; }
+.card { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--text-secondary); font-size: 13px; line-height: 1.45; }
+.card h3 { margin: 0 0 8px; font-size: 13px; color: var(--accent); font-weight: 600; letter-spacing: .02em; }
+.card .big { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.card .muted { color: var(--text-muted); font-size: 12px; }
+.card img { width: 100%; border-radius: 6px; display: block; }
+.card ul { margin: 4px 0 0 18px; padding: 0; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; }
+.kv b { color: var(--text-primary); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.chips button { font: inherit; font-size: 12px; padding: 5px 10px; border-radius: 99px; border: 1px solid var(--line); background: var(--surface-1); color: var(--text-secondary); cursor: pointer; }
+.chips button.on { border-color: var(--accent); color: var(--text-primary); }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart .tip { position: absolute; pointer-events: none; background: #0d0f0e; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font-size: 12px; color: var(--text-primary); white-space: nowrap; display: none; }
+.chart text { fill: var(--text-muted); font-size: 10px; font-family: system-ui, sans-serif; }
+.chart text.zone { fill: var(--text-secondary); font-size: 10px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pair figure { margin: 0; } .pair figcaption { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 3px; }
+input[type=range] { width: 100%; }
+.nut { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; text-align: center; }
+.nut div { background: var(--surface-1); border-radius: 6px; padding: 6px 2px; }
+.nut b { display: block; color: var(--text-primary); font-size: 14px; white-space: nowrap; }
+.nut span { font-size: 10px; color: var(--text-muted); }
+.flag { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 11px; border: 1px solid var(--line); color: var(--text-secondary); }
+.teach input { font: inherit; padding: 7px 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface-1); color: var(--text-primary); width: 150px; }
+.teach button, .card button.act { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 7px; border: 0; background: var(--accent); color: #111; font-weight: 600; cursor: pointer; }
+.sensors label { margin-right: 12px; cursor: pointer; }

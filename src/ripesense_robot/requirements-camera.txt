@@ -1,0 +1,7 @@
+# Camera-only runtime (Python 3.10+); training dependencies are separate.
+flask
+numpy
+opencv-python-headless
+onnxruntime
+pillow
+tokenizers

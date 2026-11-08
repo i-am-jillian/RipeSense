@@ -1,0 +1,95 @@
+# RipeSense configuration. Edit on the Pi; restart the service to apply.
+
+# true = simulated sensors (laptop dev). Can also be forced with RIPESENSE_MOCK=1.
+mock: false
+
+data_dir: data            # scans.csv, ripesense.db, images/ are written here
+models_dir: models/artifacts
+
+camera:
+  backend: realsense      # realsense | webcam
+  webcam_index: 0
+  width: 640               # colour stream
+  height: 480
+  # Depth at 424x240: a D435's minimum range is ~10 cm here vs ~17-20 cm at
+  # 640x480/848x480, and a fruit top sits ~15 cm from the lens. Aligned to colour.
+  depth_width: 424
+  depth_height: 240
+  # Height of the fruit seat (tray plane) below the camera, mm. Pixels closer
+  # than (tray_depth_mm - mask_min_height_mm) count as fruit. Measure it:
+  # `python -m ripesense.hw.camera --test` with the empty cradle prints the median.
+  tray_depth_mm: 188
+  ir_bruise: true          # also grab the 850 nm IR image (projector off) for hidden bruises
+  mask_min_height_mm: 8
+  warmup_frames: 15
+
+spectral:
+  i2c_address: 0x39
+  gain: 64                # AS7341 gain multiplier: 0.5,1,2,4,...,512
+  atime: 100
+  astep: 999
+  white_ref_file: white_ref.json   # inside data_dir; written by the Calibrate button on /collect
+
+gas:
+  type: bme680            # mq | bme680  (BME688 uses bme680 too)
+  # MQ via ADS1115
+  ads1115_address: 0x48
+  ads1115_channel: 0
+  divider_ratio: 1.5      # Vsensor = Vadc * divider_ratio (e.g. 10k/20k divider on a 5 V MQ)
+  # BME680
+  bme680_address: 0x77
+  # E-nose: hotplate temperatures (°C) stepped every sample (BME688 recommended).
+  # Must match features.HEATER_STEPS. Empty list = classic single reading.
+  heater_profile: [200, 250, 300, 350, 400]
+  heater_step_ms: 100
+  # Timing
+  read_seconds: 120
+  sample_hz: 1
+  warmup_minutes: 30      # informational; MQ needs this before scanning
+
+gpio:                     # BCM pin numbers. Avoids the 3.5" screen's pins
+                          # (SPI 7-11, GPIO 17 touch IRQ, 24 RST, 25 DC) and I2C (2, 3).
+  touch_pin: 5            # TTP223 OUT
+  reed_pin: 6             # reed switch to GND, internal pull-up
+  reed_closed_level: 0    # 0 = reads low when door shut
+  led_strip_pin: 12       # MOSFET gate: camera LED strip
+  spectral_white_pin: 13  # MOSFET gate: 2× white 5 mm LEDs
+  spectral_ir_pin: 16     # MOSFET gate: 2× 850 nm IR LEDs
+  fan_pin: 26             # MOSFET gate: 40 mm fan
+  require_door: true      # false if no reed switch fitted
+
+scan:
+  fan_purge_seconds: 20
+  confidence_threshold: 0.6
+
+# Retail markdown tiers (store manager can edit). Keys are stage names.
+markdown:
+  unripe:          {store_action: "Keep in back stock",  markdown_pct: [0, 0]}
+  ripe:            {store_action: "Front of display",    markdown_pct: [0, 0]}
+  ripe_to_overripe: {store_action: "\"Ripe now\" sticker", markdown_pct: [25, 40]}
+  overripe:        {store_action: "Bake/juice bin",      markdown_pct: [50, 70]}
+  spoiled:         {store_action: "Pull from shelf",     markdown_pct: null}
+
+# Markdown optimizer (pricing.py). Demand assumptions: fit them to real sales later.
+pricing:
+  optimise: true
+  elasticity: 3.0          # buyers/day multiply by exp(3 × discount); 50 % off → ×4.5
+  disposal_cost: 0.03      # $ per binned item
+  donation_value_pct: 0.30 # value of donating vs full price (tax deduction)
+  max_markdown_pct: 70
+
+base_prices:              # $ per item, used in Store mode
+  banana: 0.29
+  avocado: 1.49
+  tomato: 0.69
+  apple: 0.89
+  default: 1.00
+
+cloud:
+  gemini_model: gemini-2.5-flash   # set GEMINI_API_KEY env var to enable
+  gemini_timeout_s: 6
+  tiger_enabled: false             # set TIGER_DATABASE_URL env var + true to log scans
+
+ui:
+  host: 0.0.0.0
+  port: 5000

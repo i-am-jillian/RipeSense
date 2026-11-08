@@ -1,0 +1,42 @@
+classes: ['apple_fresh', 'apple_rotten', 'avocado', 'banana_overripe', 'banana_ripe', 'banana_rotten', 'banana_unripe', 'mango', 'not_fruit', 'orange_fresh', 'orange_rotten', 'other_fruit', 'strawberry_fresh', 'strawberry_rotten']
+public train {'apple_fresh': 650, 'apple_rotten': 650, 'banana_overripe': 189, 'banana_ripe': 193, 'banana_rotten': 650, 'banana_unripe': 191, 'orange_fresh': 650, 'orange_rotten': 650, 'other_fruit': 650, 'strawberry_fresh': 162, 'strawberry_rotten': 157}
+public val   {'apple_fresh': 149, 'apple_rotten': 141, 'banana_overripe': 40, 'banana_ripe': 42, 'banana_rotten': 138, 'banana_unripe': 40, 'orange_fresh': 127, 'orange_rotten': 145, 'other_fruit': 155, 'strawberry_fresh': 18, 'strawberry_rotten': 21}
+public test  {'apple_fresh': 141, 'apple_rotten': 132, 'banana_overripe': 41, 'banana_ripe': 42, 'banana_rotten': 113, 'banana_unripe': 42, 'orange_fresh': 142, 'orange_rotten': 129, 'other_fruit': 156, 'strawberry_fresh': 20, 'strawberry_rotten': 22}
+robot  train {'apple_fresh': 122, 'avocado': 132, 'banana_unripe': 114, 'mango': 43, 'not_fruit': 40, 'orange_fresh': 135, 'orange_rotten': 27, 'strawberry_fresh': 282}
+robot  val   {'apple_fresh': 16, 'avocado': 17, 'banana_unripe': 15, 'mango': 6, 'not_fruit': 6, 'orange_fresh': 18, 'orange_rotten': 4, 'strawberry_fresh': 38}
+robot  test  {'apple_fresh': 24, 'avocado': 26, 'banana_unripe': 22, 'mango': 8, 'not_fruit': 7, 'orange_fresh': 27, 'orange_rotten': 5, 'strawberry_fresh': 56}
+train 5687  val 1136  test 1155  epochs 12
+epoch  1/12 loss 1.730  val public F1 0.661  val robot F1 0.824  (131s)
+epoch  2/12 loss 0.556  val public F1 0.906  val robot F1 0.857  (134s)
+epoch  3/12 loss 0.466  val public F1 0.910  val robot F1 0.934  (140s)
+epoch  4/12 loss 0.423  val public F1 0.886  val robot F1 0.893  (139s)
+epoch  5/12 loss 0.409  val public F1 0.920  val robot F1 0.994  (176s)
+epoch  6/12 loss 0.383  val public F1 0.952  val robot F1 1.000  (219s)
+epoch  7/12 loss 0.373  val public F1 0.968  val robot F1 1.000  (215s)
+epoch  8/12 loss 0.358  val public F1 0.969  val robot F1 1.000  (206s)
+epoch  9/12 loss 0.350  val public F1 0.983  val robot F1 1.000  (204s)
+epoch 10/12 loss 0.346  val public F1 0.986  val robot F1 0.988  (212s)
+epoch 11/12 loss 0.335  val public F1 0.986  val robot F1 0.994  (204s)
+epoch 12/12 loss 0.339  val public F1 0.986  val robot F1 0.994  (179s)
+
+TEST ALL: n=1155 accuracy 0.979 macro-F1 0.985
+  recall per class: {'apple_fresh': 0.982, 'apple_rotten': 0.97, 'avocado': 1.0, 'banana_overripe': 0.951, 'banana_ripe': 1.0, 'banana_rotten': 1.0, 'banana_unripe': 0.984, 'mango': 1.0, 'not_fruit': 1.0, 'orange_fresh': 0.994, 'orange_rotten': 0.978, 'other_fruit': 0.936, 'strawberry_fresh': 1.0, 'strawberry_rotten': 1.0}
+
+TEST PUBLIC: n=980 accuracy 0.977 macro-F1 0.981
+  recall per class: {'apple_fresh': 0.979, 'apple_rotten': 0.97, 'banana_overripe': 0.951, 'banana_ripe': 1.0, 'banana_rotten': 1.0, 'banana_unripe': 1.0, 'orange_fresh': 0.993, 'orange_rotten': 0.977, 'other_fruit': 0.936, 'strawberry_fresh': 1.0, 'strawberry_rotten': 1.0}
+
+TEST ROBOT: n=175 accuracy 0.994 macro-F1 0.996
+  recall per class: {'apple_fresh': 1.0, 'avocado': 1.0, 'banana_unripe': 0.955, 'mango': 1.0, 'not_fruit': 1.0, 'orange_fresh': 1.0, 'orange_rotten': 1.0, 'strawberry_fresh': 1.0}
+
+ROBOT test confusion (rows true, cols pred):
+  apple_fresh        {'apple_fresh': 24}
+  avocado            {'avocado': 26}
+  banana_unripe      {'banana_unripe': 21, 'strawberry_fresh': 1}
+  mango              {'mango': 8}
+  not_fruit          {'not_fruit': 7}
+  orange_fresh       {'orange_fresh': 27}
+  orange_rotten      {'orange_rotten': 5}
+  strawberry_fresh   {'strawberry_fresh': 56}
+
+OpenCV-DNN vs PyTorch: same class 200/200
+saved /mnt/data/ripesense_train/robot_fruit/robot_fruit_model.onnx

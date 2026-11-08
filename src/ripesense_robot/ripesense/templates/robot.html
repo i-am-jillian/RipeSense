@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RipeSense · Robot picker</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0d0f0e;color:#f2f4f3}
+*{box-sizing:border-box}body{max-width:1180px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.brand{font-size:19px;font-weight:700}.brand b{color:#f5c518}.badge{font-size:12px;border:1px solid #343a35;border-radius:30px;padding:7px 12px;color:#a7b2a9;text-decoration:none;display:inline-block}
+h1{font-size:clamp(25px,4.5vw,38px);margin:6px 0}p{color:#a7b2a9;line-height:1.6}
+.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;margin-top:20px}.card{background:#171a19;border:1px solid #2a302c;border-radius:18px;padding:18px;min-width:0}
+.view{aspect-ratio:4/3;background:#090b0a;border-radius:12px;position:relative;overflow:hidden;display:grid;place-items:center}.view img{position:absolute;width:100%;height:100%;object-fit:contain}
+.placeholder{padding:25px;text-align:center;color:#858e87}
+button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 14px;background:#252c27;border:1px solid #3c453f;border-radius:9px;color:#f2f4f3;font:inherit;cursor:pointer}
+button.on{border-color:#f5c518;color:#f5c518}.primary{background:#f5c518;color:#15170f;border:0;font-weight:650}button:disabled{opacity:.45;cursor:wait}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#f5c518}
+.phase{font-size:24px;font-weight:650;margin:8px 0 4px}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#59615b;margin-right:8px;vertical-align:middle}.dot.ok{background:#38c172}.dot.bad{background:#e3604a}
+.kv{display:flex;justify-content:space-between;font-size:14px;padding:7px 0;border-bottom:1px solid #232825}.kv span:first-child{color:#93a096}
+.target{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;margin-top:10px}.target img{width:96px;height:96px;object-fit:cover;border-radius:10px;background:#090b0a}
+.verdict{font-size:20px;font-weight:650}.muted{color:#7e8981}.fresh,.ripe{color:#5bd68a}.rotten,.overripe{color:#ff8a75}.unsure,.unripe{color:#f5c518}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}td,th{text-align:left;padding:6px 4px;border-bottom:1px solid #232825}th{color:#93a096;font-weight:500}
+.log{font-size:12px;color:#a7b2a9;max-height:160px;overflow:auto;margin-top:8px;font-family:ui-monospace,monospace}
+.result{padding:12px;background:#202721;border-radius:10px;font-size:14px;margin-top:12px;color:#c8d1ca}.hidden{display:none!important}
+.stack{display:grid;gap:20px}a{color:#f5c518}footer{font-size:12px;color:#7e8981;margin-top:20px}
+@media(max-width:820px){body{padding:16px}.layout{grid-template-columns:1fr}}
+</style>
+<header><span class="brand"><b>Ripe</b>Sense <span style="font-weight:400;color:#a7b2a9">· AiNex picker</span></span>
+<span style="display:flex;gap:8px"><a class="badge" href="/">← Camera assessment</a><span class="badge" id="robotBadge">Robot {{ robot_host }}</span></span></header>
+<h1>What the robot sees and sorts</h1>
+<p>Live camera from the humanoid, judged by our own trained RipeSense model. <b style="color:#5bd68a">Green</b> = ripe → basket, <b style="color:#ff8a75">red</b> = spoiled → bin, <b style="color:#f5c518">amber</b> = unripe (left alone) or unsure, grey = not a fruit. The cross marks the fruit it is going for.</p>
+<main class="layout">
+<section class="card">
+  <div class="view"><span id="placeholder" class="placeholder">Connecting to the robot camera…</span><img id="stream" alt="Robot camera stream" class="hidden"></div>
+  <div class="actions"><button id="viewAnnotated" class="on">Annotated</button><button id="viewRaw">Raw camera</button><button id="reconnect">Reconnect</button></div>
+  <div class="label" style="margin-top:18px">In view <span id="summary" style="text-transform:none;letter-spacing:0;color:#a7b2a9;margin-left:8px"></span></div>
+  <table><thead><tr><th>Fruit</th><th>Verdict</th><th>Confidence</th><th>Rot</th><th>Goes to</th></tr></thead><tbody id="dets"><tr><td colspan="5" style="color:#7e8981">—</td></tr></tbody></table>
+</section>
+<div class="stack">
+<section class="card" aria-live="polite">
+  <div class="label">Robot</div>
+  <div class="phase"><span id="dot" class="dot"></span><span id="phase">Waiting for status…</span></div>
+  <div class="kv"><span>Ripe → basket</span><span id="nBasket">—</span></div><div class="kv"><span>Spoiled → bin</span><span id="nBin">—</span></div><div class="kv"><span>Carrying</span><span id="carry">—</span></div>
+  <div class="kv"><span>Mode</span><span id="mode">—</span></div>
+  <div class="kv"><span>Detector</span><span id="fps">—</span></div>
+  <div class="log" id="log"></div>
+</section>
+<section class="card">
+  <div class="label">Camera focus</div>
+  <div style="display:flex;align-items:baseline;gap:14px;margin-top:8px"><span id="focusVal" style="font-size:34px;font-weight:700">—</span><span class="hint" style="color:#93a096">best <span id="focusPeak">—</span></span></div>
+  <div class="track" style="height:10px;background:#2b332d;border-radius:6px;overflow:hidden;margin-top:6px"><div id="focusBar" style="height:100%;width:0;background:#f5c518"></div></div>
+  <p style="font-size:13px;margin:10px 0 0">Put a banana (or printed text) ~30 cm in front of the robot, inside the white box. Turn the lens slowly; stop where the number is highest, then back off to the peak. <span id="focusHint"></span></p>
+  <div class="actions"><button id="focusReset">Reset best</button></div>
+</section>
+<section class="card">
+  <div class="label">Current target</div>
+  <div id="noTarget" style="color:#7e8981;margin-top:10px">Nothing to sort in view.</div>
+  <div id="target" class="target hidden"><img id="crop" alt="Target fruit crop"><div><div id="tVerdict" class="verdict"></div><div id="tDetail" style="font-size:13px;color:#a7b2a9;margin-top:4px"></div></div></div>
+  <div class="actions"><button id="assess" class="primary" disabled>Assess target with full RipeSense</button></div>
+  <div id="assessOut" class="result hidden"></div>
+</section>
+</div>
+</main>
+<footer>The video and status come from the robot through this app, so the browser only connects to localhost. Models: our own RipeSense <code>banana_model</code> (or <code>image_model</code> + <code>stage_model</code> before it is trained), running in OpenCV DNN on the robot's Raspberry Pi 4.</footer>
+<script>
+const $=id=>document.getElementById(id);let kind='annotated',lastPhase='',hasTarget=false;
+function connect(){const img=$('stream');img.classList.add('hidden');$('placeholder').classList.remove('hidden');$('placeholder').textContent='Connecting to the robot camera…';
+  img.onload=()=>{img.classList.remove('hidden');$('placeholder').classList.add('hidden')};
+  img.onerror=()=>{$('placeholder').textContent='Robot camera unavailable. Is the robot on and the detector running? Retrying…';setTimeout(connect,3000)};
+  img.src='/robot/stream/'+kind+'?t='+Date.now()}
+function setKind(k){kind=k;$('viewAnnotated').classList.toggle('on',k==='annotated');$('viewRaw').classList.toggle('on',k==='raw');connect()}
+$('viewAnnotated').onclick=()=>setKind('annotated');$('viewRaw').onclick=()=>setKind('raw');$('reconnect').onclick=connect;
+function cell(t,cls){const td=document.createElement('td');td.textContent=t;if(cls)td.className=cls;return td}
+function log(msg){const d=document.createElement('div');d.textContent=new Date().toLocaleTimeString()+'  '+msg;$('log').prepend(d)}
+async function poll(){try{const s=await (await fetch('/robot/status')).json();
+  $('dot').className='dot '+(s.online?'ok':'bad');
+  if(!s.online){$('phase').textContent='Robot detector offline';}
+  else{const p=s.pick;const phase=p?p.phase:(s.detecting?'Detecting (pick node not running)':'Idle');$('phase').textContent=phase;
+    if(phase!==lastPhase){log(phase);lastPhase=phase}
+    const dl=(p&&p.delivered)||{};$('nBasket').textContent=p?(dl.basket||0):'—';$('nBin').textContent=p?(dl.bin||0):'—';$('carry').textContent=p&&p.carrying?`${(p.carrying_label||'').replace('_',' ')} → ${p.carrying}`:'—';
+    $('mode').textContent=s.collect?`Collecting training photos: "${s.collect.label}" ${s.collect.saved}/${s.collect.max}`:p?(p.state==='pick'?'Finding fruit to sort':`Carrying to ${p.carrying} (tag ${p.place_tag})`):'Perception only';
+    $('fps').textContent=s.detecting?`${s.fps} fps`:'paused';showFocus(s.focus);
+    const tb=$('dets');tb.replaceChildren();
+    for(const d of s.detections||[]){const tr=document.createElement('tr');const nf=d.gate==='not_fruit'||d.verdict==='not fruit',ck=d.gate==='checking';const v=nf?'not a fruit':ck?'checking…':(d.verdict);const go=d.not_target?('not target: '+d.not_target):({basket:'basket',bin:'bin',leave:'leave'}[d.act]||'—');const cls={basket:'fresh',bin:'rotten',leave:'unripe'}[d.act]||'muted';tr.append(cell(nf?'—':d.fruit),cell(v,nf||ck?'muted':cls),cell(nf?'—':Math.round(d.conf*100)+'%'),cell(nf?'—':Math.round(d.rot*100)+'%'),cell(go,cls));tb.append(tr)}
+    const cnt={};for(const d of s.detections||[]){if(d.verdict!=='not fruit'){const k=d.fruit;cnt[k]=(cnt[k]||0)+1}}$('summary').textContent=Object.keys(cnt).length?'Seen: '+Object.entries(cnt).map(([k,v])=>v+' '+k).join(', '):'';
+    if(!(s.detections||[]).length){const tr=document.createElement('tr');tr.append(cell('—'));tb.append(tr)}
+    const t=s.target;hasTarget=!!t;$('assess').disabled=!t;$('target').classList.toggle('hidden',!t);$('noTarget').classList.toggle('hidden',!!t);
+    if(t){$('tVerdict').textContent=`${t.verdict} ${t.fruit} → ${t.act}`;$('tVerdict').className='verdict '+({basket:'fresh',bin:'rotten'}[t.act]||'unsure');
+      $('tDetail').textContent=`confidence ${Math.round(t.conf*100)}% · rot ${Math.round(t.rot*100)}% · at (${t.x}, ${t.y})`;$('crop').src='/robot/target.jpg?t='+Date.now()}}
+}catch(e){$('dot').className='dot bad';$('phase').textContent='Laptop app cannot reach robot'}finally{setTimeout(poll,700)}}
+$('assess').onclick=async()=>{const b=$('assess');b.disabled=true;const out=$('assessOut');out.classList.remove('hidden');out.textContent='Assessing the target crop…';
+  try{const blob=await (await fetch('/robot/target.jpg?t='+Date.now())).blob();const form=new FormData();form.append('image',blob,'target.jpg');form.append('item','');
+    const r=await fetch('/api/predict',{method:'POST',body:form});const d=await r.json();if(!r.ok)throw Error(d.error||'Prediction failed');
+    out.textContent=`${d.headline} (${d.fruit_type} · ${d.predicted_stage}). ${d.tip||''} [${d.model}, ${d.inference_ms} ms]`}
+  catch(e){out.textContent=e.message}finally{b.disabled=!hasTarget}};
+let fPeak=0;$('focusReset').onclick=()=>{fPeak=0};
+function showFocus(v){if(v==null)return;fPeak=Math.max(fPeak,v);$('focusVal').textContent=Math.round(v);$('focusPeak').textContent=Math.round(fPeak);
+  const r=fPeak?v/fPeak:0;$('focusBar').style.width=Math.round(100*r)+'%';$('focusBar').style.background=r>0.9?'#5bd68a':r>0.6?'#f5c518':'#ff8a75';
+  $('focusHint').textContent=r>0.9?'At the peak. Lock it here.':r>0.6?'Close: fine-tune.':'Blurry: keep turning (try the other way).'}
+connect();poll();
+</script>

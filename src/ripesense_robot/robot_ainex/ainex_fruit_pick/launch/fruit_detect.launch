@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!-- Perception only (robot does not move). Assumes ainex_bringup is running (camera, controller, web_video_server). -->
+<launch>
+    <arg name="models_dir" default="/home/ubuntu/ripesense_models"/>
+    <arg name="fruits"     default="banana"/>   <!-- e.g. "lime,strawberry"; empty = any fruit the model knows -->
+    <arg name="rot_thresh" default="0.35"/>
+    <arg name="conf_thresh" default="0.7"/>
+    <arg name="apriltag"   default="true"/>
+    <arg name="overripe_action" default="bin"/>   <!-- bin | basket | leave -->
+    <arg name="collect_label"   default=""/>
+    <arg name="max_elong"  default="0"/>    <!-- e.g. 1.8 for round fruit (apples): ignore long thin blobs -->
+    <arg name="min_area"   default="300"/>
+    <arg name="sat_thresh" default="70"/>
+    <arg name="dark_thresh" default="0"/>          <!-- >0: dark blobs (V below this) are candidates too, e.g. 55 for avocados -->
+    <arg name="display_min_area" default="300"/>     <!-- raise (~110) for strongly coloured fruit on speckled floors -->      <!-- set to save training crops, e.g. ripe -->
+
+    <node pkg="ainex_fruit_pick" type="fruit_detector_node.py" name="fruit_detection" output="screen">
+        <param name="models_dir"  value="$(arg models_dir)"/>
+        <param name="fruits"      value="$(arg fruits)"/>
+        <param name="rot_thresh"  value="$(arg rot_thresh)"/>
+        <param name="conf_thresh" value="$(arg conf_thresh)"/>
+        <param name="overripe_action" value="$(arg overripe_action)"/>
+        <param name="collect_label" value="$(arg collect_label)"/>
+        <param name="max_elong" value="$(arg max_elong)"/>
+        <param name="min_area" value="$(arg min_area)"/>
+        <param name="sat_thresh" value="$(arg sat_thresh)"/>
+        <param name="dark_thresh" value="$(arg dark_thresh)"/>
+        <param name="display_min_area" value="$(arg display_min_area)"/>
+    </node>
+
+    <!-- drop zones: tag36h11 10 cm, id 1 = basket (ripe), id 2 = bin (spoiled) (ainex_example/config/tags.yaml) -->
+    <group if="$(arg apriltag)">
+        <rosparam command="load" file="$(find ainex_example)/config/settings.yaml" ns="apriltag_ros_continuous_node"/>
+        <rosparam command="load" file="$(find ainex_example)/config/tags.yaml"     ns="apriltag_ros_continuous_node"/>
+        <node pkg="apriltag_ros" type="apriltag_ros_continuous_node" name="apriltag_ros_continuous_node" clear_params="true" output="screen">
+            <param name="enable_detect" type="bool" value="false"/>
+            <param name="publish_tag_detections_image" type="bool" value="true"/>
+            <remap from="image_rect"  to="/camera/image_rect_color"/>
+            <remap from="camera_info" to="/camera/camera_info"/>
+        </node>
+    </group>
+</launch>

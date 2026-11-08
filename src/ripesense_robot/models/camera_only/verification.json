@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-05",
+  "model_sha256": "ffcca48ec72683aa5db016f864b795c66670f512a0326ea2fd94041fb819a020",
+  "automated_tests_passed": 20,
+  "photo_upload_browser": "passed",
+  "browser_camera_flow_with_test_video": "passed",
+  "result_download": "passed",
+  "mobile_no_horizontal_overflow": "passed",
+  "browser_javascript_errors": [],
+  "attached_webcam_capture_http_status": 200,
+  "attached_webcam_capture_source": "camera 0, laptop integrated webcam",
+  "live_banana_camera_validation": false,
+  "test_metrics": {
+    "n": 104,
+    "accuracy": 0.9903846153846154,
+    "macro_f1": 0.9900212781568714,
+    "classes": [
+      "overripe",
+      "ripe",
+      "unripe"
+    ],
+    "confusion": [
+      [
+        38,
+        1,
+        0
+      ],
+      [
+        0,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        36
+      ]
+    ],
+    "uncertain": 1,
+    "median_inference_ms": 6.0,
+    "model_sha256": "ffcca48ec72683aa5db016f864b795c66670f512a0326ea2fd94041fb819a020"
+  }
+}

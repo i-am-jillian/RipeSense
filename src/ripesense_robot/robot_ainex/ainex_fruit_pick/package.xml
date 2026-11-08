@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ainex_fruit_pick</name>
+  <version>0.1.0</version>
+  <description>RipeSense ripe-fruit picking for the Hiwonder AiNex</description>
+  <maintainer email="sumangowdavr@gmail.com">raj</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>ainex_interfaces</exec_depend>
+  <exec_depend>ainex_example</exec_depend>
+  <exec_depend>apriltag_ros</exec_depend>
+</package>

@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RipeSense xArm</title>
+<style>
+:root{color-scheme:light;
+  --bg:#f4f4f2;--surface:#fcfcfb;--surface-2:#f0efec;--border:#e2e1dc;--text:#0b0b0b;--text-2:#52514e;--muted:#7b7a75;
+  --accent:#2a78d6;--series-1:#2a78d6;--series-2:#eb6834;--grid:#e6e5e0;
+  --good:#0ca30c;--warning:#fab219;--serious:#ec835a;--critical:#d03b3b;--info:#2a78d6;--neutral:#8b8a85;
+  --btn:#0b0b0b;--btn-text:#fff;--danger:#d03b3b}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){color-scheme:dark;
+  --bg:#111110;--surface:#1a1a19;--surface-2:#242422;--border:#2f2f2c;--text:#f0efec;--text-2:#c3c2b7;--muted:#8d8c85;
+  --accent:#3987e5;--series-1:#3987e5;--series-2:#d95926;--grid:#2c2c29;--info:#3987e5;--neutral:#7d7c76;--btn:#f0efec;--btn-text:#111}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#111110;--surface:#1a1a19;--surface-2:#242422;--border:#2f2f2c;--text:#f0efec;--text-2:#c3c2b7;--muted:#8d8c85;
+  --accent:#3987e5;--series-1:#3987e5;--series-2:#d95926;--grid:#2c2c29;--info:#3987e5;--neutral:#7d7c76;--btn:#f0efec;--btn-text:#111}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:-.01em}
+header h1 small{font-weight:500;color:var(--muted);margin-left:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--border);border-radius:999px;background:var(--surface-2);font-size:12.5px;color:var(--text-2);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--neutral)}
+.dot.good{background:var(--good)}.dot.warning{background:var(--warning)}.dot.critical{background:var(--critical)}
+main{display:grid;gap:16px;padding:16px 20px;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);max-width:1700px;margin:0 auto}
+@media (max-width:1250px){main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.span-all{grid-column:1/-1}}
+@media (max-width:760px){main{grid-template-columns:minmax(0,1fr);padding:12px 16px}header{padding:10px 16px}.chips{margin-left:0}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;min-width:0}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 10px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 span.r{text-transform:none;letter-spacing:0;font-weight:500}
+.span-all{grid-column:1/-1}
+.cam{position:relative;aspect-ratio:4/3;background:#000;border-radius:8px;overflow:hidden}
+.cam img{width:100%;height:100%;object-fit:contain;display:block}
+.cam .off{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#bbb;text-align:center;padding:20px}
+.cam.down .off{display:flex}.cam.down img{visibility:hidden}
+.phase{position:absolute;left:10px;top:10px;padding:3px 10px;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;font-size:12.5px;font-weight:600}
+.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+button{font:inherit;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);padding:9px 12px;cursor:pointer;text-align:left}
+button:hover{border-color:var(--text-2)}button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{background:var(--btn);color:var(--btn-text);border-color:var(--btn)}
+button.stop{grid-column:1/-1;background:var(--danger);border-color:var(--danger);color:#fff;font-weight:700;text-align:center;font-size:15px;padding:11px}
+button small{display:block;opacity:.7;font-size:12px}
+label.clear{display:flex;gap:8px;align-items:flex-start;margin-top:10px;color:var(--text-2);font-size:13px}
+.msg{min-height:20px;margin-top:8px;font-size:13px;color:var(--text-2)}
+pre.log{background:var(--surface-2);border-radius:8px;padding:10px;margin:10px 0 0;max-height:220px;overflow:auto;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text-2);white-space:pre-wrap}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.tile{background:var(--surface-2);border-radius:8px;padding:8px 10px;min-width:0}
+.tile b{display:block;font-size:22px;font-weight:650;font-variant-numeric:tabular-nums}
+.tile span{font-size:12px;color:var(--muted)}
+.cat{border-top:1px solid var(--border);padding:8px 0}
+.cat:first-of-type{border-top:0}
+.cat h3{margin:0 0 6px;font-size:13.5px;display:flex;align-items:center;gap:8px}
+.cat h3 .n{margin-left:auto;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;color:#fff;font-size:12px;font-weight:700;flex:none}
+.b-ripe{background:var(--good)}.b-spoiled{background:var(--critical)}.b-unripe{background:var(--serious)}.b-unsure{background:var(--warning);color:#111}.b-other{background:var(--info)}.b-notfruit{background:var(--neutral)}
+.item{display:flex;gap:10px;align-items:center;padding:5px 0}
+.item img{width:42px;height:42px;border-radius:6px;object-fit:cover;background:var(--surface-2);flex:none}
+.item .t{min-width:0}.item .t b{font-weight:600}.item small{color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.none{color:var(--muted);font-size:12.5px}
+ol.next{list-style:none;padding:0;margin:0;counter-reset:n}
+ol.next li{counter-increment:n;display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 10px;padding:9px 0;border-top:1px solid var(--border);cursor:pointer}
+ol.next li:first-child{border-top:0}
+ol.next li::before{content:counter(n);grid-row:span 3;width:24px;height:24px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px}
+ol.next li:first-child::before{background:var(--btn);color:var(--btn-text)}
+ol.next li:hover .nm{text-decoration:underline}
+.pbar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--series-2);border-radius:3px}
+.why{font-size:12.5px;color:var(--text-2)}.chg{font-size:12.5px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--border);white-space:nowrap;font-variant-numeric:tabular-nums}
+tr.sel td{background:var(--surface-2)}tbody tr{cursor:pointer}tbody tr:hover td{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+tr.gone td{color:var(--muted)}
+.tablewrap{overflow-x:auto}
+.histgrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}
+@media (max-width:900px){.histgrid{grid-template-columns:minmax(0,1fr)}}
+.chart{position:relative}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--text-2);margin-bottom:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 9px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;min-width:150px;z-index:3}
+.tip b{display:block;margin-bottom:2px}
+.strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.strip figure{margin:0;flex:none;text-align:center;font-size:11px;color:var(--muted)}
+.strip img{width:72px;height:72px;object-fit:cover;border-radius:6px;display:block;background:var(--surface-2)}
+.err{color:var(--critical);font-size:12.5px}
+.muted{color:var(--muted)}
+details summary{cursor:pointer;color:var(--text-2);font-size:12.5px;margin-top:8px}
+</style></head>
+<body>
+<header>
+  <h1>RipeSense xArm <small>row search · Tiger Data scan history</small></h1>
+  <div class="chips" id="chips"><span class="chip"><span class="dot"></span>connecting…</span></div>
+</header>
+<main>
+  <!-- column 1: camera + controls -->
+  <section class="card">
+    <h2>Wrist camera <span class="r" id="camnote">live</span></h2>
+    <div class="cam" id="cam"><img id="camimg" alt="Live wrist camera"><div class="off">Camera stream not available.<br>Check the localhost:8091 tunnel or the Pi.</div><span class="phase" id="phase" hidden></span></div>
+    <div class="controls" id="controls"></div>
+    <label class="clear"><input type="checkbox" id="frontclear"> The area in front of the arm is clear of people (front views reach ~70 cm out from the base).</label>
+    <div class="msg" id="msg"></div>
+    <pre class="log" id="log">no job yet</pre>
+  </section>
+
+  <!-- column 2: what the robot sees -->
+  <section class="card">
+    <h2>What the robot sees <span class="r" id="seenwhen"></span></h2>
+    <div class="tiles" id="seentiles"></div>
+    <div id="cats"></div>
+  </section>
+
+  <!-- column 3: Tiger inspect next -->
+  <section class="card">
+    <h2>Inspect next <span class="r">ranked by Tiger Data</span></h2>
+    <ol class="next" id="next"><li class="none">loading…</li></ol>
+    <details><summary>How the priority is scored</summary>
+      <p class="muted" style="font-size:12.5px;margin:6px 0 0">40% spoiled probability · 20% model uncertainty · 20% getting worse since the previous scan · 10% label changed · 10% time since last scan (full after 30 min). Only fruit seen in the latest search count.</p></details>
+  </section>
+
+  <!-- fruit table -->
+  <section class="card span-all">
+    <h2>Fruit tracked in the last 12 h <span class="r" id="tigerline"></span></h2>
+    <div class="tablewrap"><table id="fruits"><thead><tr>
+      <th>Fruit</th><th>Latest label</th><th class="num">Confidence</th><th class="num">Spoiled</th><th class="num">Dark area</th>
+      <th>Where (x, y mm)</th><th class="num">Scans</th><th>Last scan</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- history -->
+  <section class="card span-all">
+    <h2><span id="histtitle">Fruit history</span> <span class="r">click a fruit above or in “Inspect next”</span></h2>
+    <div class="histgrid">
+      <div>
+        <div class="legend"><span><i style="background:var(--series-1)"></i>Model confidence</span><span><i style="background:var(--series-2)"></i>Spoiled probability</span></div>
+        <div class="chart" id="hist"><p class="none">No fruit selected.</p></div>
+        <div class="strip" id="strip"></div>
+      </div>
+      <div>
+        <div class="tiles" id="dbtiles"></div>
+        <div class="legend"><span><i style="background:var(--series-1)"></i>Scans per 10 min (Timescale <code>time_bucket</code>, last 6 h)</span></div>
+        <div class="chart" id="buckets"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = v => v == null ? '–' : Math.round(v * 100) + '%';
+const nice = c => String(c || '').replace(/_/g, ' ');
+const CATS = [
+  ['unsure', 'Not sure → look closer', '?'], ['ripe', 'Ripe → basket', '✓'], ['spoiled', 'Spoiled → bin', '✕'],
+  ['unripe', 'Unripe → leave on plant', '◷'], ['other', 'Other fruit', '•'], ['notfruit', 'Not fruit', '–']];
+const catOf = (cls, conf) => conf < 0.5 ? 'unsure' : cls === 'not_fruit' ? 'notfruit' : cls === 'other_fruit' ? 'other'
+  : /_rotten$/.test(cls) ? 'spoiled' : /_unripe$/.test(cls) ? 'unripe' : 'ripe';
+const ago = iso => { if (!iso) return '–'; const m = (Date.now() - new Date(iso)) / 60000;
+  return m < 1 ? 'just now' : m < 60 ? Math.round(m) + ' min ago' : (m / 60).toFixed(1) + ' h ago'; };
+const crop = p => p ? '/api/crop?p=' + encodeURIComponent(p) : '';
+let SEL = null, STATUS = {};
+
+/* ---------------- camera ---------------- */
+const camimg = $('#camimg');
+function camConnect() { camimg.src = 'http://localhost:8091/stream?t=' + Date.now(); }
+camimg.onload = () => $('#cam').classList.remove('down');
+camimg.onerror = () => { $('#cam').classList.add('down'); setTimeout(camConnect, 3000); };
+camConnect();
+
+/* ---------------- controls ---------------- */
+const BTNS = [
+  ['search', 'Row search', 'front first, then floor', 'primary'], ['inspect', 'Inspect next', 'camera visits top 2 from Tiger'],
+  ['search_front', 'Front only', 'bush / tree height'], ['search_floor', 'Floor only', 'table / ground'],
+  ['sort', 'Pick ripe → bin', 'ripe fruit into the taught bin', 'primary'], ['pick', 'Pick & place test', 'gentle grip, puts each back']];
+$('#controls').innerHTML = BTNS.map(([k, t, s, c]) => `<button class="${c || ''}" data-job="${k}">${t}<small>${s}</small></button>`).join('')
+  + '<button class="stop" id="stop">■ STOP ARM</button>';
+document.querySelectorAll('[data-job]').forEach(b => b.onclick = async () => {
+  const job = b.dataset.job;
+  if (job === 'sort' && !confirm('Pick ripe → bin: the arm grasps each RIPE fruit (confidence ≥ 50%), carries it to the taught bin and drops it. Spoiled / unsure / non-fruit stay on the table. Continue?')) return;
+  if (job === 'pick' && !confirm('Pick & place test: the arm will grasp each object on the table, lift it and put it back. Continue?')) return;
+  $('#msg').textContent = 'starting…';
+  const r = await fetch('/api/run/' + job, {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({front_clear: $('#frontclear').checked})});
+  const j = await r.json(); $('#msg').textContent = j.msg || (j.ok ? 'started' : 'failed');
+  if (j.ok && job.startsWith('search')) $('#frontclear').checked = false;   // confirm again next time
+  setTimeout(poll, 800);
+});
+$('#stop').onclick = async () => {
+  $('#msg').textContent = 'stopping…';
+  const j = await (await fetch('/api/stop', {method: 'POST'})).json(); $('#msg').textContent = j.msg;
+};
+
+/* ---------------- status chips ---------------- */
+function chip(state, text) { return `<span class="chip"><span class="dot ${state}"></span>${esc(text)}</span>`; }
+async function pollStatus() {
+  try {
+    const s = STATUS = await (await fetch('/api/status')).json(); const c = [];
+    if (s.pi === false) c.push(chip('critical', 'Pi unreachable'));
+    else {
+      const a = s.arm || {};
+      c.push(a.connected ? chip(a.error ? 'critical' : a.state === 1 ? 'warning' : 'good',
+        'Arm ' + (a.error ? 'error ' + a.error : a.state === 1 ? 'moving' : 'ready')) : chip('critical', 'Arm offline'));
+      const r = s.rail || {};
+      c.push(r.error ? chip('warning', `Rail fault ${r.error} (fixed)`) : r.on_zero ? chip('good', `Rail ${r.pos} mm`) : chip('warning', 'Rail not homed'));
+      if (s.gripper != null) c.push(chip('', `Gripper ${Math.round(s.gripper / 10)} mm`));
+      if (s.model) c.push(chip('', `Model ${s.model.classes} classes · ${new Date(s.model.mtime * 1000).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`));
+      const j = s.job || [];
+      c.push(s.busy ? chip('warning', 'Job: ' + (j[1] || 'running')) : chip('good', j.length ? `Idle · last ${j[1]} ${j[0]}` : 'Idle'));
+    }
+    $('#chips').innerHTML = c.join('');
+    document.querySelectorAll('[data-job]').forEach(b => b.disabled = !!s.busy);
+  } catch (e) { $('#chips').innerHTML = chip('critical', 'dashboard server offline'); }
+}
+
+/* ---------------- job log ---------------- */
+async function pollLog() {
+  try { const j = await (await fetch('/api/log')).json(); const el = $('#log');
+    const stick = el.scrollTop + el.clientHeight >= el.scrollHeight - 10; el.textContent = j.log || 'no output yet';
+    if (stick) el.scrollTop = el.scrollHeight; } catch (e) {}
+}
+
+/* ---------------- what the robot sees ---------------- */
+async function pollSeen() {
+  try {
+    const s = await (await fetch('/api/search')).json(); const items = s.items || [];
+    const ph = $('#phase'); const live = s.phase && !s.done && s.phase !== 'no search yet';
+    ph.hidden = !live; ph.textContent = (s.phase || '').toUpperCase() + (s.view ? ' · ' + s.view : '');
+    $('#seenwhen').textContent = live ? 'search running' : s.finished ? 'last search ' + ago(new Date(s.finished * 1000).toISOString()) : (s.phase || '');
+    const n = k => items.filter(i => (i.cat || catOf(i.cls, i.conf)) === k).length;
+    $('#seentiles').innerHTML = [['ripe', 'ripe'], ['spoiled', 'spoiled'], ['unsure', 'not sure']]
+      .map(([k, t]) => `<div class="tile"><b>${n(k)}</b><span><span class="badge b-${k}" style="width:14px;height:14px;font-size:9px;margin-right:4px">${CATS.find(c => c[0] === k)[2]}</span>${t}</span></div>`).join('');
+    $('#cats').innerHTML = CATS.map(([k, t, ic]) => {
+      const it = items.filter(i => (i.cat || catOf(i.cls, i.conf)) === k);
+      return `<div class="cat"><h3><span class="badge b-${k}">${ic}</span>${t}<span class="n">${it.length}</span></h3>` +
+        (it.length ? it.map(i => `<div class="item" ${i.fid ? `onclick="select(${i.fid})" style="cursor:pointer"` : ''}>
+          ${i.thumb ? `<img alt="" src="data:image/jpeg;base64,${i.thumb}">` : ''}
+          <div class="t"><b>${i.fid ? '#' + i.fid + ' ' : ''}${esc(nice(i.cls))}</b> ${pct(i.conf)}
+          <small>${esc(i.where)} · (${i.x}, ${i.y}, ${i.z}) mm · seen ${i.seen}×</small></div></div>`).join('')
+          : '<div class="none">none</div>') + '</div>';
+    }).join('');
+  } catch (e) {}
+}
+
+/* ---------------- Tiger: inspect next ---------------- */
+async function pollNext() {
+  try {
+    const r = await (await fetch('/api/next')).json();
+    if (r.error) { $('#next').innerHTML = `<li class="err">Tiger: ${esc(r.error)}</li>`; return; }
+    const mx = Math.max(0.01, ...r.map(x => x.priority));
+    $('#next').innerHTML = r.length ? r.map(x => `<li onclick="select(${x.fruit_id})">
+      <div><b class="nm">#${x.fruit_id} ${esc(nice(x.cls))}</b> <span class="muted">${pct(x.conf)} · at (${Math.round(x.x)}, ${Math.round(x.y)})</span></div>
+      <div class="pbar" title="priority ${x.priority.toFixed(2)}"><i style="width:${(x.priority / mx * 100).toFixed(0)}%"></i></div>
+      <div><div class="why">${esc(x.why)}</div><div class="chg">Since last scan: ${esc(x.change)}</div></div></li>`).join('')
+      : '<li class="none">No fruit in the latest search.</li>';
+    if (SEL == null && r.length) select(r[0].fruit_id);
+  } catch (e) {}
+}
+
+/* ---------------- Tiger: fruit table ---------------- */
+let FRUITS = [];
+async function pollFruits() {
+  try {
+    const r = await (await fetch('/api/fruits')).json(); if (r.error) return; FRUITS = r;
+    $('#fruits tbody').innerHTML = r.sort((a, b) => (b.present - a.present) || (b.ts > a.ts ? 1 : -1)).map(f => {
+      const k = catOf(f.cls, f.conf), ic = CATS.find(c => c[0] === k);
+      return `<tr class="${f.fruit_id === SEL ? 'sel' : ''} ${f.present ? '' : 'gone'}" onclick="select(${f.fruit_id})">
+      <td><b>#${f.fruit_id}</b></td><td><span class="badge b-${k}" style="width:16px;height:16px;font-size:10px;margin-right:6px">${ic[2]}</span>${esc(nice(f.cls))}</td>
+      <td class="num">${pct(f.conf)}</td><td class="num">${pct(f.p_rotten)}</td><td class="num">${pct(f.dark_frac)}</td>
+      <td>(${Math.round(f.x_mm)}, ${Math.round(f.y_mm)})</td><td class="num">${f.n_scans}</td><td>${ago(f.ts)} · ${esc(f.source)}</td>
+      <td>${f.present ? 'in latest search' : '<span class="muted">not seen in latest search</span>'}</td></tr>`; }).join('')
+      || '<tr><td colspan="9" class="none">No scans yet.</td></tr>';
+  } catch (e) {}
+}
+
+/* ---------------- charts (hand-drawn SVG, one 0–100% axis) ---------------- */
+function lineChart(el, rows) {
+  if (!rows.length) { el.innerHTML = '<p class="none">No scans for this fruit.</p>'; return; }
+  const W = 640, H = 220, L = 38, R = 14, T = 12, B = 26;
+  const t0 = new Date(rows[0].ts).getTime(), t1 = new Date(rows[rows.length - 1].ts).getTime();
+  const span = Math.max(t1 - t0, 60000);
+  const X = t => rows.length === 1 ? (L + W - R) / 2 : L + (new Date(t).getTime() - t0) / span * (W - L - R);
+  const Y = v => T + (1 - v) * (H - T - B);
+  const ser = [['conf', 'var(--series-1)', 'Confidence'], ['p_rotten', 'var(--series-2)', 'Spoiled']];
+  let g = '';
+  for (const v of [0, .25, .5, .75, 1]) g += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)" stroke-width="1"/>
+    <text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${v * 100}%</text>`;
+  const fmt = t => new Date(t).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  g += `<text x="${L}" y="${H - 6}" font-size="11" fill="var(--muted)">${fmt(rows[0].ts)}</text>
+        <text x="${W - R}" y="${H - 6}" font-size="11" fill="var(--muted)" text-anchor="end">${fmt(rows[rows.length - 1].ts)}</text>`;
+  for (const [k, col, name] of ser) {
+    const pts = rows.filter(r => r[k] != null).map(r => [X(r.ts), Y(r[k])]);
+    if (pts.length > 1) g += `<polyline fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+    g += pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="${col}" stroke="var(--surface)" stroke-width="2"/>`).join('');
+    const last = pts[pts.length - 1];
+    if (last) g += `<text x="${Math.min(last[0] + 7, W - R - 2)}" y="${last[1] - 7}" font-size="11.5" fill="var(--text-2)" text-anchor="${last[0] > W - 90 ? 'end' : 'start'}">${name} ${pct(rows[rows.length - 1][k])}</text>`;
+  }
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Confidence and spoiled probability over time">${g}
+    <line id="xh" y1="${T}" y2="${H - B}" stroke="var(--text-2)" stroke-width="1" stroke-dasharray="3 3" visibility="hidden"/>
+    <rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent" id="hit"/></svg><div class="tip"></div>`;
+  const svg = el.querySelector('svg'), tip = el.querySelector('.tip'), xh = el.querySelector('#xh');
+  el.querySelector('#hit').addEventListener('mousemove', e => {
+    const b = svg.getBoundingClientRect(), sx = (e.clientX - b.left) / b.width * W;
+    let best = rows[0]; for (const r of rows) if (Math.abs(X(r.ts) - sx) < Math.abs(X(best.ts) - sx)) best = r;
+    const px = X(best.ts); xh.setAttribute('x1', px); xh.setAttribute('x2', px); xh.setAttribute('visibility', 'visible');
+    tip.style.display = 'block';
+    tip.innerHTML = `<b>${new Date(best.ts).toLocaleTimeString()} · ${esc(best.source)}</b>${esc(nice(best.cls))}<br>
+      <span style="color:var(--series-1)">●</span> Confidence ${pct(best.conf)}<br><span style="color:var(--series-2)">●</span> Spoiled ${pct(best.p_rotten)}<br>
+      Dark area ${pct(best.dark_frac)} · hue ${best.hue_deg == null ? '–' : Math.round(best.hue_deg) + '°'}<br>camera ${Math.round(best.cam_dist_mm || 0)} mm away`;
+    const left = px / W * b.width; tip.style.left = Math.min(left + 12, b.width - 170) + 'px'; tip.style.top = '8px';
+  });
+  el.querySelector('#hit').addEventListener('mouseleave', () => { tip.style.display = 'none'; xh.setAttribute('visibility', 'hidden'); });
+}
+
+function barChart(el, rows) {
+  if (!rows.length) { el.innerHTML = '<p class="none">No scans in the last 6 h.</p>'; return; }
+  const W = 360, H = 150, L = 30, R = 6, T = 10, B = 22, mx = Math.max(...rows.map(r => r.n));
+  const bw = (W - L - R) / rows.length, Y = v => T + (1 - v / mx) * (H - T - B);
+  let g = `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="var(--grid)"/>
+    <text x="${L - 5}" y="${Y(mx) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${mx}</text>
+    <text x="${L - 5}" y="${H - B + 4}" text-anchor="end" font-size="11" fill="var(--muted)">0</text>`;
+  rows.forEach((r, i) => { const x = L + i * bw + 1, w = Math.max(2, bw - 2), y = Y(r.n), h = H - B - y;
+    g += `<path d="M${x},${H - B} V${y + Math.min(4, h)} q0,-4 4,-4 h${Math.max(0, w - 8)} q4,0 4,4 V${H - B} Z" fill="var(--series-1)" data-i="${i}"/>`; });
+  const fmt = t => new Date(t).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  g += `<text x="${L}" y="${H - 5}" font-size="11" fill="var(--muted)">${fmt(rows[0].b)}</text><text x="${W - R}" y="${H - 5}" font-size="11" fill="var(--muted)" text-anchor="end">${fmt(rows[rows.length - 1].b)}</text>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scans per 10 minutes">${g}</svg><div class="tip"></div>`;
+  const tip = el.querySelector('.tip'), svg = el.querySelector('svg');
+  svg.querySelectorAll('path[data-i]').forEach(p => {
+    p.addEventListener('mouseenter', e => { const r = rows[+p.dataset.i], b = svg.getBoundingClientRect();
+      tip.style.display = 'block'; tip.innerHTML = `<b>${fmt(r.b)}</b>${r.n} scans`;
+      tip.style.left = Math.min(e.clientX - b.left + 10, b.width - 160) + 'px'; tip.style.top = '4px'; });
+    p.addEventListener('mouseleave', () => tip.style.display = 'none');
+  });
+}
+
+async function select(fid) {
+  SEL = fid; pollFruits();
+  const rows = await (await fetch('/api/history/' + fid)).json(); if (rows.error) return;
+  const last = rows[rows.length - 1] || {};
+  $('#histtitle').textContent = `Fruit #${fid} · ${nice(last.cls)} · ${rows.length} scan${rows.length === 1 ? '' : 's'}`;
+  lineChart($('#hist'), rows);
+  $('#strip').innerHTML = rows.slice(-14).map(r => r.crop_path ? `<figure><img loading="lazy" alt="" src="${crop(r.crop_path)}">${new Date(r.ts).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})} · ${esc(r.source)}</figure>` : '').join('');
+}
+
+async function pollStats() {
+  try {
+    const s = await (await fetch('/api/stats')).json(); if (s.error) { $('#tigerline').innerHTML = `<span class="err">Tiger: ${esc(s.error)}</span>`; return; }
+    $('#dbtiles').innerHTML = [[s.scans, 'scans stored'], [s.fruits, 'fruit tracked'], [s.sessions, 'search sessions']]
+      .map(([v, t]) => `<div class="tile"><b>${v}</b><span>${t}</span></div>`).join('');
+    $('#tigerline').textContent = `Tiger Cloud · ${s.hypertable ? 'hypertable fruit_scans' : 'table fruit_scans'} · last write ${ago(s.last)}`;
+    barChart($('#buckets'), s.buckets || []);
+  } catch (e) {}
+}
+
+function poll() { pollStatus(); pollSeen(); pollLog(); }
+poll(); pollNext(); pollFruits(); pollStats();
+setInterval(pollStatus, 4000); setInterval(pollSeen, 1500); setInterval(pollLog, 1500);
+setInterval(() => { pollNext(); pollFruits(); pollStats(); if (SEL != null) select(SEL); }, 6000);
+</script>
+</body></html>

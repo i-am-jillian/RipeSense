@@ -1,0 +1,204 @@
+{
+  "tomato": {
+    "classes": [
+      "fresh",
+      "spoiled"
+    ],
+    "val": {
+      "n": 572,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "confusion": [
+        [
+          99,
+          0
+        ],
+        [
+          0,
+          473
+        ]
+      ]
+    },
+    "test": {
+      "n": 554,
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "confusion": [
+        [
+          94,
+          0
+        ],
+        [
+          0,
+          460
+        ]
+      ]
+    },
+    "chosen_C": 0.003,
+    "validation": [
+      {
+        "C": 0.003,
+        "macro_f1": 1.0
+      },
+      {
+        "C": 0.03,
+        "macro_f1": 1.0
+      },
+      {
+        "C": 0.3,
+        "macro_f1": 1.0
+      }
+    ],
+    "counts": {
+      "train/spoiled": 500,
+      "test/spoiled": 460,
+      "test/fresh": 94,
+      "train/fresh": 500,
+      "val/spoiled": 473,
+      "val/fresh": 99
+    },
+    "groups": {
+      "train": 374,
+      "val": 200,
+      "test": 200
+    },
+    "split": "Source photo groups held out; original author splits retained",
+    "scope": "Tomato visible fresh / spoiled labels",
+    "source": "https://data.mendeley.com/datasets/vy5y8p2kdb/1",
+    "license": "CC BY 4.0"
+  },
+  "avocado": {
+    "classes": [
+      "breaking",
+      "overripe",
+      "ripe_first_stage",
+      "ripe_second_stage",
+      "unripe"
+    ],
+    "val": {
+      "n": 250,
+      "accuracy": 0.624,
+      "macro_f1": 0.6222766766546876,
+      "confusion": [
+        [
+          32,
+          0,
+          6,
+          1,
+          11
+        ],
+        [
+          0,
+          37,
+          0,
+          13,
+          0
+        ],
+        [
+          12,
+          4,
+          28,
+          6,
+          0
+        ],
+        [
+          1,
+          17,
+          9,
+          23,
+          0
+        ],
+        [
+          14,
+          0,
+          0,
+          0,
+          36
+        ]
+      ]
+    },
+    "test": {
+      "n": 250,
+      "accuracy": 0.624,
+      "macro_f1": 0.6223349436066627,
+      "confusion": [
+        [
+          30,
+          0,
+          8,
+          1,
+          11
+        ],
+        [
+          0,
+          34,
+          5,
+          11,
+          0
+        ],
+        [
+          6,
+          2,
+          28,
+          14,
+          0
+        ],
+        [
+          0,
+          15,
+          14,
+          21,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          0,
+          43
+        ]
+      ]
+    },
+    "chosen_C": 0.03,
+    "validation": [
+      {
+        "C": 0.003,
+        "macro_f1": 0.5988269645234913
+      },
+      {
+        "C": 0.03,
+        "macro_f1": 0.6222766766546876
+      },
+      {
+        "C": 0.3,
+        "macro_f1": 0.6115032121369531
+      }
+    ],
+    "counts": {
+      "val/unripe": 50,
+      "train/overripe": 200,
+      "test/ripe_second_stage": 50,
+      "train/ripe_second_stage": 200,
+      "val/breaking": 50,
+      "train/unripe": 200,
+      "train/ripe_first_stage": 200,
+      "val/ripe_first_stage": 50,
+      "val/ripe_second_stage": 50,
+      "test/breaking": 50,
+      "val/overripe": 50,
+      "test/overripe": 50,
+      "train/breaking": 200,
+      "test/ripe_first_stage": 50,
+      "test/unripe": 50
+    },
+    "groups": {
+      "train": 302,
+      "val": 67,
+      "test": 63
+    },
+    "split": "Whole avocado identities held out",
+    "scope": "Hass avocado cultivar in the source capture setup",
+    "source": "https://data.mendeley.com/datasets/3xd9n945v8/1",
+    "license": "CC BY 4.0"
+  }
+}
