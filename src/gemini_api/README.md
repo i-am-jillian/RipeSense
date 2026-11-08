@@ -113,7 +113,4 @@ tools/        image-model trainer
 tests/        end-to-end tests in simulation
 ```
 
-## Hackathon note
 
-MLH events expect projects to be built during the event. If you bring this as starter code, tell
-the organizers and say so on your Devpost page.
