@@ -23,3 +23,45 @@ The eight features approximate AS7341 visible bands from referenced hyperspectra
 Sujal's [`src/RipeSense_Train.ipynb`](src/RipeSense_Train.ipynb) is unchanged. Its separately trained ONNX model can later consume YOLO RGB crops with its own preprocessing and labels.
 
 See [DeepHS tests and limitations](docs/deephs_validation.md), [original detection/Mendeley validation](docs/detection_spectral_validation.md), and [Mendeley audit](docs/mendeley_ripeness_audit.json). No large data or model binaries are committed. The DeepHS helper is embedded in the notebook and also available as [`src/ripesense_deephs.py`](src/ripesense_deephs.py).
+
+
+
+The final model (v4) was trained on 4 datasets, 6,358 training images, plus 1,227 for checking during training and 1,283 held back for the final test:
+
+#: 1
+Dataset: Fresh and Rotten Fruits (Sultana, Jahan, Uddin) + FruitNet (Meshram, Patil). Public, Mendeley Data, CC BY
+  4.0
+Who made it: Public
+Train images: 4,473
+What it contributed: apple fresh/rotten, orange fresh/rotten, strawberry fresh/rotten, banana rotten (650 per class
+  at most), plus grape, guava, jujube, lime and pomegranate, combined as "other fruit" (650)
+────────────────────────────────────────
+#: 2
+Dataset: Annotated Banana Ripeness Stage Dataset v2 (Rohit et al.). Public, Mendeley Data, CC BY 4.0
+Who made it: Public
+Train images: 573
+What it contributed: banana unripe / ripe / overripe (189–193 each)
+────────────────────────────────────────
+#: 3
+Dataset: AiNex robot photos, taken with our humanoid robot's head camera
+Who made it: Ours
+Train images: 895
+What it contributed: apple, avocado (ripe), banana (unripe), mango, orange fresh/rotten, strawberry (fresh),
+  not-fruit
+────────────────────────────────────────
+#: 4
+Dataset: xArm RealSense crops, taken by the arm itself on 8 Nov
+Who made it: Ours
+Train images: 671
+What it contributed: apple, avocado ripe/rotten, banana unripe, lemon, mango fresh/rotten, orange fresh/rotten,
+  strawberry rotten, not-fruit (tools, tape, case)
+
+How they were combined:
+- Sampling weights: public ×1, AiNex ×3, xArm ×5. The arm's own camera matters most, because that's the camera it uses in the demo.
+- Some classes come from only one source:
+  - lemon and avocado rotten only from our xArm data.
+  - banana ripe/overripe only from the public banana set.
+  - strawberry fresh only from public + AiNex photos.
+- Splits: our own photos are split by time within each collection round (75% train, 10% check, 15% test), so the test images are angles the model never saw.
+
+Totals: about 5,046 public images and about 1,566 of our own photos in training. Including the check and test sets, we collected 2,080 photos ourselves (890 xArm + 1,190 AiNex). They're in the GitHub repo under src/ripesense_robot/datasets/; the public sets are linked there, not copied.
