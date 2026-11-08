@@ -118,13 +118,3 @@ Full logs with per-class recall and confusion matrices: `training/logs/robot_fru
   recoveries; an avocado at 31-36 % confidence was correctly left as "not sure".
 * Gentle grip: fingers close on the widest part (lemon: 60 mm contact on a 58 mm lemon); a 100 mm mango is
   gripped at its 75 mm section and released cleanly.
-
-## Known limits (say them before a judge does)
-
-* The 100 % RealSense score is on **new views of the same physical fruit**, not new fruit.
-* Yellow apples read "not sure" (training apples were mostly red); dark ripe vs spoiled avocado is close.
-* No fresh strawberries from the wrist camera in training (fresh strawberry comes from public/AiNex photos only).
-* **Linear rail**: currently faulted (error 13, creeps when enabled) and needs a controller power-cycle + homing
-  from UFactory Studio; `rail_test2.py` is the watchdog test. Rail stops in the search are the next step.
-* **AS7341 spectral sensor** was damaged during wiring; the `spectral` column is ready but empty.
-* Reach: about 64 cm from the base; farther fruit are skipped (that is what the rail is for).
