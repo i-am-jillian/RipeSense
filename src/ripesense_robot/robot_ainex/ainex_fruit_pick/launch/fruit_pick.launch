@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!-- Walk to ripe fruit, pick it, carry it to the basket tag. Assumes ainex_bringup is running. -->
+<launch>
+    <arg name="fruits"     default="banana"/>
+    <arg name="max_fruits" default="3"/>
+    <arg name="basket_tag" default="1"/>
+    <arg name="bin_tag"    default="2"/>
+    <arg name="overripe_action" default="bin"/>
+    <arg name="start"      default="true"/>
+    <arg name="conf_thresh" default="0.7"/>
+    <arg name="max_elong"  default="0"/>
+    <arg name="min_area"   default="300"/>
+    <arg name="sat_thresh" default="70"/>
+    <arg name="give_up_s"  default="60"/>
+    <arg name="squeeze"    default="110"/>   <!-- two-hand grip 0..110; 110 = Hiwonder block grip -->
+
+    <include file="$(find ainex_fruit_pick)/launch/fruit_detect.launch">
+        <arg name="fruits" value="$(arg fruits)"/>
+        <arg name="overripe_action" value="$(arg overripe_action)"/>
+        <arg name="conf_thresh" value="$(arg conf_thresh)"/>
+        <arg name="max_elong" value="$(arg max_elong)"/>
+        <arg name="min_area" value="$(arg min_area)"/>
+        <arg name="sat_thresh" value="$(arg sat_thresh)"/>
+    </include>
+
+    <node pkg="ainex_fruit_pick" type="fruit_pick_node.py" name="fruit_pick" output="screen">
+        <param name="max_fruits" value="$(arg max_fruits)"/>
+        <param name="basket_tag" value="$(arg basket_tag)"/>
+        <param name="bin_tag"    value="$(arg bin_tag)"/>
+        <param name="start"      value="$(arg start)"/>
+        <param name="give_up_s"  value="$(arg give_up_s)"/>
+        <param name="squeeze"    value="$(arg squeeze)"/>
+    </node>
+</launch>

@@ -1,0 +1,8 @@
+# camera(color optical) -> flange, xArm rpy convention, from 15 samples
+method: TSAI
+EULER_EEF_TO_COLOR_OPT: [0.138217, -0.032252, -0.066220, 0.060715, 0.007954, 1.592395]
+board_pos_spread_mm: 4.41
+board_rot_spread_deg: 1.07
+diff_vs_ufactory_mm: 113.0
+diff_vs_ufactory_deg: 3.84
+all_methods: {"TSAI": {"xyz_m": [0.1382170022677043, -0.03225228819697184, -0.06621978775029325], "rpy_rad": [0.06071507518063531, 0.007954029904736851, 1.5923954099946414], "board_pos_spread_mm": 4.41, "board_rot_spread_deg": 1.07, "board_in_base_mm": [481.4, 124.6, -88.4]}, "PARK": {"xyz_m": [0.13869826764437443, -0.03162157282091626, -0.06536994220249795], "rpy_rad": [0.05820145927777482, 0.005708643784177622, 1.5954439344850782], "board_pos_spread_mm": 4.41, "board_rot_spread_deg": 1.06, "board_in_base_mm": [480.9, 124.7, -89.3]}, "HORAUD": {"xyz_m": [0.13871405959171396, -0.03162865541290178, -0.06536096124077187], "rpy_rad": [0.05803028892354827, 0.005624577658729419, 1.595353582234789], "board_pos_spread_mm": 4.41, "board_rot_spread_deg": 1.06, "board_in_base_mm": [480.8, 124.8, -89.3]}, "DANIILIDIS": {"xyz_m": [0.13771226093254005, -0.030303100665821016, -0.06698405137674522], "rpy_rad": [0.06049048969653007, 0.006311841168218088, 1.5992419454587776], "board_pos_spread_mm": 4.46, "board_rot_spread_deg": 1.06, "board_in_base_mm": [481.1, 122.6, -87.7]}}

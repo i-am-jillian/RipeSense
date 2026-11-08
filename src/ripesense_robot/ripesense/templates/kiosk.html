@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=480, height=320, initial-scale=1, user-scalable=no">
+<title>RipeSense</title>
+<link rel="stylesheet" href="/static/insights.css">
+<style>
+  :root {
+    --bg: #0d0f0e; --panel: #171a19; --line: #262b29; --text: #f2f4f3; --muted: #8b9490;
+    --accent: #f5c518;
+    --unripe: #5cb85c; --ripe: #f5c518; --ripe_to_overripe: #f59e0b; --overripe: #d9622b;
+    --spoiled: #b23b3b; --uncertain: #8b9490;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { width: 480px; height: 320px; overflow: hidden; background: var(--bg); color: var(--text);
+    font-family: "Inter", "DejaVu Sans", system-ui, sans-serif; user-select: none; cursor: none; }
+  body.dev { cursor: default; outline: 1px dashed #333; }
+  .screen { position: absolute; inset: 0; display: none; padding: 14px 16px; }
+  .screen.on { display: flex; flex-direction: column; }
+  button { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 0 14px; height: 40px; font-size: 15px; }
+  button:active { background: #222826; }
+  .brand { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .brand b { color: var(--accent); font-weight: 600; }
+
+  /* idle / scanning / door / error */
+  .center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
+  .big { font-size: 26px; font-weight: 600; line-height: 1.2; }
+  .sub { font-size: 14px; color: var(--muted); }
+  .tapring { width: 92px; height: 92px; border-radius: 50%; border: 3px solid var(--accent);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; letter-spacing: .1em;
+    color: var(--accent); font-size: 17px; animation: pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(245,197,24,.35); } 50% { box-shadow: 0 0 0 14px rgba(245,197,24,0); } }
+  .progress { width: 320px; height: 10px; background: var(--panel); border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+  .progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s linear; }
+  .steps { display: flex; gap: 18px; font-size: 13px; color: var(--muted); }
+  .steps span.on { color: var(--text); }
+  .steps span.done { color: var(--accent); }
+  .warn { position: absolute; left: 16px; right: 16px; bottom: 8px; font-size: 11px; color: var(--muted); text-align: center; }
+
+  /* result */
+  .top { display: flex; align-items: center; gap: 10px; height: 46px; }
+  .thumb { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; background: var(--panel); border: 1px solid var(--line); }
+  .fruit { font-size: 18px; font-weight: 600; text-transform: capitalize; }
+  .stagechip { font-size: 12px; padding: 2px 8px; border-radius: 99px; color: #111; font-weight: 600; }
+  .mode { margin-left: auto; height: 30px; font-size: 12px; padding: 0 10px; border-radius: 99px; }
+  .verdict { font-size: 30px; font-weight: 700; line-height: 1.1; margin: 10px 0 8px; }
+  .days { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .bar { position: relative; flex: 1; height: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; }
+  .bar .range { position: absolute; top: 2px; bottom: 2px; border-radius: 5px; opacity: .85; }
+  .bar .med { position: absolute; top: -4px; width: 3px; height: 20px; background: var(--text); border-radius: 2px; transform: translateX(-1px); }
+  .ticks { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin: 2px 0 0 74px; }
+  .conf { display: flex; align-items: center; gap: 14px; margin-top: 8px; font-size: 14px; }
+  .conf .pct { font-size: 20px; font-weight: 700; }
+  .dots { display: flex; gap: 12px; }
+  .dot { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+  .dot i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); }
+  .dot.agree i { background: var(--accent); border-color: var(--accent); }
+  .dot.disagree i { border-color: var(--spoiled); }
+  .dot.missing i { border-style: dashed; opacity: .5; }
+  .bottom { margin-top: auto; font-size: 14px; line-height: 1.3; min-height: 36px; display: flex; align-items: center;
+    border-top: 1px solid var(--line); padding-top: 6px; }
+  .bottom .price { font-size: 20px; font-weight: 700; margin-right: 8px; }
+  .bottom .was { text-decoration: line-through; color: var(--muted); margin-right: 10px; }
+  .buttons { display: flex; gap: 8px; margin-top: 8px; }
+  .buttons button { flex: 1; }
+  .buttons button.primary { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+  .flag { font-size: 10px; color: var(--muted); margin-left: 6px; }
+  /* details screen */
+  .tabs { display: flex; gap: 6px; margin: 6px 0 6px; }
+  .tabs button { height: 30px; font-size: 13px; padding: 0 12px; border-radius: 99px; }
+  .tabs button.on { border-color: var(--accent); color: var(--accent); }
+  .pane { flex: 1; overflow: hidden; font-size: 13px; line-height: 1.35; color: #c3c2b7; }
+  .pane .chart { width: 300px; flex: none; }
+  .pane .chips { margin: 2px 0 0; } .pane .chips button { height: 24px; padding: 0 9px; font-size: 11px; }
+  .pane b { color: var(--text); }
+  .pane .row2 { display: flex; gap: 10px; }
+  .pane img { border-radius: 6px; }
+  .note { font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body class="viz-root">
+<!-- IDLE -->
+<div class="screen on" id="idle" onclick="scan()">
+  <div class="brand"><b>Ripe</b>Sense · fruit ripeness</div>
+  <div class="center">
+    <div class="tapring">TAP</div>
+    <div class="big">Place fruit, close door, tap</div>
+    <div class="sub">Camera · spectral · gas in about 2 minutes</div>
+  </div>
+  <div class="warn" id="idleWarn"></div>
+</div>
+
+<!-- SCANNING -->
+<div class="screen" id="scanning">
+  <div class="brand"><b>Ripe</b>Sense · scanning</div>
+  <div class="center">
+    <div class="big" id="scanMsg">Starting…</div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="steps"><span id="st-cam">Camera</span><span id="st-spec">Spectral</span><span id="st-gas">Gas</span><span id="st-ml">Model</span></div>
+    <div class="sub">Keep the door closed</div>
+  </div>
+</div>
+
+<!-- DOOR -->
+<div class="screen" id="close_door" onclick="scan()">
+  <div class="brand"><b>Ripe</b>Sense</div>
+  <div class="center"><div class="big">Close the door</div><div class="sub">then tap again</div></div>
+</div>
+
+<!-- ERROR -->
+<div class="screen" id="error" onclick="reset()">
+  <div class="brand"><b>Ripe</b>Sense</div>
+  <div class="center"><div class="big">Something went wrong</div><div class="sub" id="errMsg"></div><div class="sub">Tap to go back</div></div>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="result">
+  <div class="top">
+    <img class="thumb" id="thumb" alt="">
+    <div>
+      <div class="fruit" id="fruit">Banana</div>
+      <span class="stagechip" id="chip">Ripe</span><span class="flag" id="flag"></span>
+    </div>
+    <button class="mode" id="modeBtn" onclick="toggleMode()">Home</button>
+  </div>
+  <div class="verdict" id="verdict">Eat within 2 days</div>
+  <div class="days" id="daysRow">
+    <span style="width:64px">Days left</span>
+    <div class="bar"><div class="range" id="range"></div><div class="med" id="med"></div></div>
+    <span id="daysTxt" style="width:72px;text-align:right">2–4 d</span>
+  </div>
+  <div class="ticks" id="ticks" style="margin-right:82px"><span>0</span><span>2</span><span>4</span><span>6</span><span>8+</span></div>
+  <div class="conf">
+    <span class="pct" id="pct">86%</span><span style="color:var(--muted);font-size:12px">confidence</span>
+    <div class="dots">
+      <span class="dot" id="d-camera"><i></i>camera</span>
+      <span class="dot" id="d-spectral"><i></i>spectral</span>
+      <span class="dot" id="d-gas"><i></i>gas</span>
+    </div>
+  </div>
+  <div class="bottom" id="bottom"></div>
+  <div class="buttons">
+    <button class="primary" onclick="scan()">Rescan</button>
+    <button id="moreBtn" onclick="more()">More</button>
+    <button id="saveBtn" onclick="save()">Save</button>
+    <button onclick="reset()">Done</button>
+  </div>
+</div>
+
+<!-- DETAILS (forecast / why / fruit / IR) -->
+<div class="screen" id="details">
+  <div class="top" style="height:30px">
+    <div class="brand"><b>Ripe</b>Sense · <span id="dTitle"></span></div>
+    <button class="mode" onclick="back()">Back</button>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="pane" id="pane"></div>
+</div>
+
+<script>
+const MAXD = 8;
+let last = null, mode = "home", detail = null, tab = "forecast";
+if (location.search.includes("dev")) document.body.classList.add("dev");
+
+function more() { detail = last && last.result; tab = detail && detail.forecast ? "forecast" : "why"; renderDetails(); }
+function back() { detail = null; render(last); }
+const E = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+function renderDetails() {
+  const r = detail; if (!r) return;
+  show("details");
+  document.getElementById("dTitle").textContent = `${r.fruit_type} · ${r.stage_label}`;
+  const tabs = [["forecast", "Forecast", !!r.forecast], ["why", "Why", true], ["fruit", "Fruit", !!r.profile], ["ir", "IR", !!(r.ir && r.ir.image)]].filter(t => t[2]);
+  document.getElementById("tabs").innerHTML = tabs.map(([k, l]) => `<button class="${k === tab ? "on" : ""}" onclick="tab='${k}';renderDetails()">${l}</button>`).join("");
+  const pane = document.getElementById("pane");
+  if (tab === "forecast" && r.forecast) {
+    const f = r.forecast, pw = f.peak_window;
+    pane.innerHTML = `<div class="row2"><div class="chart" id="kfc"></div><div style="flex:1">
+      <b>${f.q_now >= 1.75 ? "Past peak" : pw.start_days <= 0.05 ? "Best now" : "Best " + RS.when(pw.start)}</b>
+      <div class="note">spoils in ~${f.days_left[1].toFixed(1)} d</div>
+      <div class="chips" style="flex-direction:column;align-items:flex-start">${Object.entries(r.whatif || {}).filter(([k]) => k !== "counter").map(([k, v]) =>
+        `<button>${E({fridge: "Fridge", warm: "Warm spot", bag: "Bag + banana"}[k] || k)}: ${v.delta_days > 0 ? "+" : ""}${v.delta_days} d</button>`).join("")}</div></div></div>`;
+    RS.forecastChart(document.getElementById("kfc"), f);
+  } else if (tab === "why") {
+    const w = r.why;
+    pane.innerHTML = `<div class="row2">${w ? `<img src="${E(w.image)}" style="width:150px;height:150px">` : `<img src="${E(r.image)}" style="width:150px;height:150px;object-fit:cover">`}
+      <div style="flex:1">${w ? `<b>${E(w.model)}: "${E(w.class)}" ${Math.round(w.prob * 100)}%</b><div class="note">${w.where ? "strongest evidence " + E(w.where) : ""}</div>` : `<div class="note">heatmap computing…</div>`}
+      <div style="margin-top:6px">${(r.basis || []).slice(0, 4).map(b => `<div class="note">• ${E(b)}</div>`).join("")}</div></div></div>`;
+  } else if (tab === "fruit" && r.profile) {
+    const p = r.profile, n = p.nutrition || {};
+    pane.innerHTML = `<div><b>${p.weight_g ? p.weight_g + " g" : ""}</b>${p.brix != null ? ` · <b>${p.brix} °Brix</b>` : ""}${n.kcal != null ? ` · <b>${Math.round(n.kcal)} kcal</b>` : ""}${n.sugar_g != null ? ` · ${n.sugar_g} g sugar` : ""} <span class="note">estimates</span></div>
+      ${p.note ? `<div class="note">${E(p.note)}</div>` : ""}
+      <div style="margin-top:6px"><b>Use it:</b> ${(p.uses || []).map(E).join(" · ")}</div>
+      ${(p.ethylene.tips || [])[0] ? `<div style="margin-top:6px"><b>Ethylene:</b> ${E(p.ethylene.tips[0])}</div>` : ""}
+      ${p.storage ? `<div class="note" style="margin-top:6px">${E(p.storage)}</div>` : ""}`;
+  } else if (tab === "ir" && r.ir) {
+    const nb = r.ir.ir_bruise_count || 0;
+    pane.innerHTML = `<div class="row2"><img src="${E(r.ir.image)}" style="width:250px"><div><b>${nb ? nb + " hidden bruise" + (nb > 1 ? "s" : "") : "No hidden bruises"}</b>
+      <div class="note">850 nm IR sees bruises before the skin browns</div></div></div>`;
+  }
+}
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("on", s.id === id));
+}
+async function post(url, body) {
+  const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+  return r.json();
+}
+function scan() { post("/api/scan"); setTimeout(poll, 150); }
+function reset() { post("/api/reset").then(poll); }
+function save() { post("/api/save").then(() => { const b = document.getElementById("saveBtn"); b.textContent = "Saved ✓"; }); }
+function toggleMode() { post("/api/mode").then(r => { mode = r.mode; render(last); }); }
+
+function stageColor(s) { return getComputedStyle(document.documentElement).getPropertyValue("--" + s).trim() || "#888"; }
+function fmtDays(d) {
+  const a = Math.round(d.p10), b = Math.round(d.p90);
+  return a === b ? `${a} d` : `${a}–${b} d`;
+}
+
+function render(st) {
+  if (!st) return;
+  last = st; mode = st.mode;
+  if (detail) {
+    if (st.state === "result" && st.result && st.result.scan_id === detail.scan_id) {
+      const late = !detail.why && st.result.why;
+      detail = st.result;
+      if (late && tab === "why") renderDetails();
+      return;
+    }
+    detail = null;
+  }
+  if (location.search.includes("more") && st.state === "result" && st.result && st.result.stage !== "uncertain") {
+    last = st; more(); return;
+  }
+  const warn = [];
+  if (st.mock) warn.push("SIMULATED SENSORS");
+  if (!st.trained) warn.push("model not trained yet: camera heuristic only");
+  if (!st.calibrated) warn.push("spectral not calibrated");
+  document.getElementById("idleWarn").textContent = warn.join(" · ");
+
+  if (st.state === "scanning") {
+    show("scanning");
+    document.getElementById("scanMsg").textContent = st.message;
+    document.getElementById("bar").style.width = (st.progress * 100) + "%";
+    const p = st.progress;
+    const set = (id, a, b) => { const e = document.getElementById(id); e.className = p >= b ? "done" : (p >= a ? "on" : ""); };
+    set("st-cam", 0.0, 0.15); set("st-spec", 0.15, 0.2); set("st-gas", 0.2, 0.9); set("st-ml", 0.9, 1.01);
+    return;
+  }
+  if (st.state === "close_door") return show("close_door");
+  if (st.state === "error") { document.getElementById("errMsg").textContent = st.message; return show("error"); }
+  if (st.state !== "result" || !st.result) return show("idle");
+
+  const r = st.result;
+  show("result");
+  document.getElementById("thumb").src = r.image || "";
+  document.getElementById("fruit").textContent = r.fruit_type || "Fruit";
+  const chip = document.getElementById("chip");
+  chip.textContent = r.stage_label; chip.style.background = stageColor(r.stage);
+  document.getElementById("flag").textContent = r.uncalibrated ? "uncalibrated" : "";
+  document.getElementById("verdict").textContent = r.headline;
+  document.getElementById("verdict").style.color = r.stage === "uncertain" ? "var(--muted)" : "var(--text)";
+
+  const dr = document.getElementById("daysRow"), tk = document.getElementById("ticks");
+  if (r.days && r.stage !== "uncertain") {
+    dr.style.visibility = tk.style.visibility = "visible";
+    const x = v => Math.min(100, Math.max(0, v / MAXD * 100));
+    const rg = document.getElementById("range");
+    rg.style.left = x(r.days.p10) + "%";
+    rg.style.width = Math.max(2, x(r.days.p90) - x(r.days.p10)) + "%";
+    rg.style.background = stageColor(r.fused_stage);
+    document.getElementById("med").style.left = x(r.days.p50) + "%";
+    document.getElementById("daysTxt").textContent = fmtDays(r.days) + (r.days.guarantee ? " ✓" : "");
+    document.getElementById("daysTxt").title = r.days.guarantee ? `range holds ${Math.round(r.days.guarantee * 100)}% of the time (conformal)` : "";
+  } else {
+    dr.style.visibility = tk.style.visibility = "hidden";
+  }
+
+  document.getElementById("pct").textContent = Math.round(r.confidence * 100) + "%";
+  for (const k of ["camera", "spectral", "gas"]) {
+    document.getElementById("d-" + k).className = "dot " + (r.sensors[k] || "missing");
+  }
+
+  const b = document.getElementById("bottom");
+  document.getElementById("modeBtn").textContent = mode === "store" ? "Store" : "Home";
+  if (mode === "store") {
+    const s = r.store;
+    if (s.price != null && s.markdown_pct && s.markdown_pct[1] > 0) {
+      const off = s.markdown_pct[0] === s.markdown_pct[1] ? `${s.markdown_pct[0]}%` : `${s.markdown_pct[0]}–${s.markdown_pct[1]}%`;
+      b.innerHTML = `<span class="price">$${s.price.toFixed(2)}</span><span class="was">$${s.base_price.toFixed(2)}</span>` +
+        `<span>${off} off · ${s.store_action}</span>`;
+    } else if (s.price != null) {
+      b.innerHTML = `<span class="price">$${s.price.toFixed(2)}</span><span>${s.store_action}</span>`;
+    } else {
+      b.textContent = s.store_action;
+    }
+  } else {
+    b.textContent = r.tip || r.home_verdict;
+  }
+  if (r.offline && r.offline.length) b.textContent += ` (${r.offline.join(", ")} offline)`;
+  document.getElementById("moreBtn").style.display = r.stage === "uncertain" ? "none" : "";
+  document.getElementById("saveBtn").textContent = r.saved ? "Saved ✓" : "Save";
+}
+
+async function poll() {
+  try {
+    const st = await (await fetch("/api/status")).json();
+    render(st);
+    const fast = st.state === "scanning" || (st.state === "result" && st.result && !st.result.tip);
+    clearTimeout(window._t); window._t = setTimeout(poll, fast ? 400 : 1500);
+  } catch (e) { clearTimeout(window._t); window._t = setTimeout(poll, 2000); }
+}
+poll();
+</script>
+<script src="/static/insights.js"></script>
+</body>
+</html>

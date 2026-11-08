@@ -1,0 +1,7 @@
+# Sensor drivers (Pi only). gpiozero + lgpio come from apt (venv uses --system-site-packages).
+adafruit-blinka
+adafruit-circuitpython-as7341
+adafruit-circuitpython-ads1x15
+adafruit-circuitpython-bme680
+# Optional: Tiger Data store log
+psycopg[binary]

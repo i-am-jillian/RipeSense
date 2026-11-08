@@ -1,0 +1,82 @@
+
+===== cell 1/7 =====
+torch 2.14.1+cpu | GPU: NONE - switch runtime to GPU
+work dir: /home/raj/UB_Hack/ripesense/training/ripesense_train
+===== cell 1 done in 1s =====
+
+===== cell 2/7 =====
+downloading BANANA_DATASET75.zip (2.3 GB)…
+downloading FreshRotten_Original.zip (2.8 GB)…
+downloads OK
+===== cell 2 done in 1222s =====
+
+===== cell 3/7 =====
+banana dataset classes: ['unripe', 'ripe', 'overripe']
+label/filename disagreements: 3
+no own_data.zip found: training on public data only (robot-camera score will be missing)
+class              not_banana  overripe  ripe  rotten  unripe
+source      split                                            
+freshrotten test          164         0     0      19       0
+            train        1284         0     0     161       0
+            val           152         0     0      20       0
+stages      test            0        41    42       0      42
+            train           0       189   193       0     191
+            val             0        40    42       0      40
+===== cell 3 done in 155s =====
+
+===== cell 4/7 =====
+<cell 4>:10: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+===== cell 4 done in 1s =====
+
+===== cell 5/7 =====
+train counts {'not_banana': 1284, 'overripe': 189, 'ripe': 193, 'rotten': 161, 'unripe': 191}
+/home/raj/UB_Hack/ripesense/.venv/lib/python3.10/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
+  super().__init__(loader)
+epoch  1/15  loss 1.377  val acc 0.898  val macro-F1 0.877  (33s)
+epoch  2/15  loss 0.459  val acc 0.990  val macro-F1 0.987  (33s)
+epoch  3/15  loss 0.297  val acc 0.993  val macro-F1 0.990  (34s)
+epoch  4/15  loss 0.285  val acc 0.980  val macro-F1 0.971  (35s)
+epoch  5/15  loss 0.271  val acc 0.990  val macro-F1 0.985  (37s)
+epoch  6/15  loss 0.256  val acc 0.997  val macro-F1 0.995  (37s)
+epoch  7/15  loss 0.248  val acc 0.993  val macro-F1 0.988  (37s)
+epoch  8/15  loss 0.246  val acc 1.000  val macro-F1 1.000  (36s)
+epoch  9/15  loss 0.241  val acc 1.000  val macro-F1 1.000  (36s)
+epoch 10/15  loss 0.242  val acc 1.000  val macro-F1 1.000  (36s)
+epoch 11/15  loss 0.235  val acc 1.000  val macro-F1 1.000  (34s)
+epoch 12/15  loss 0.237  val acc 1.000  val macro-F1 1.000  (35s)
+epoch 13/15  loss 0.235  val acc 1.000  val macro-F1 1.000  (35s)
+epoch 14/15  loss 0.234  val acc 1.000  val macro-F1 1.000  (35s)
+epoch 15/15  loss 0.232  val acc 1.000  val macro-F1 1.000  (35s)
+best val macro-F1 1.0
+===== cell 5 done in 529s =====
+
+===== cell 6/7 =====
+
+TEST (all): n=308  accuracy 0.997  macro-F1 0.995
+   rows = true, cols = predicted: ['not_banana', 'overripe', 'ripe', 'rotten', 'unripe']
+   not_banana  [164, 0, 0, 0, 0]
+   overripe    [0, 41, 0, 0, 0]
+   ripe        [0, 1, 41, 0, 0]
+   rotten      [0, 0, 0, 19, 0]
+   unripe      [0, 0, 0, 0, 42]
+
+TEST [freshrotten]: n=183  accuracy 1.000  macro-F1 1.000
+   rows = true, cols = predicted: ['not_banana', 'overripe', 'ripe', 'rotten', 'unripe']
+   not_banana  [164, 0, 0, 0, 0]
+   rotten      [0, 0, 0, 19, 0]
+
+TEST [stages]: n=125  accuracy 0.992  macro-F1 0.992
+   rows = true, cols = predicted: ['not_banana', 'overripe', 'ripe', 'rotten', 'unripe']
+   overripe    [0, 41, 0, 0, 0]
+   ripe        [0, 1, 41, 0, 0]
+   unripe      [0, 0, 0, 0, 42]
+<cell 6>:24: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+<cell 6>:33: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown
+===== cell 6 done in 4s =====
+
+===== cell 7/7 =====
+<cell 7>:4: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter has become the default. Learn more about the new export logic: https://docs.pytorch.org/docs/stable/onnx_export.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html
+OpenCV-DNN vs PyTorch on 300 test crops: same class 300/300, max logit diff 0.0000
+saved to /home/raj/UB_Hack/ripesense/training/ripesense_train/output and /home/raj/UB_Hack/ripesense/training/ripesense_train/banana_model.zip
+download it from the Files panel: No module named 'google.colab'
+===== cell 7 done in 4s =====

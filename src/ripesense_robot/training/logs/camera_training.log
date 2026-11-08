@@ -1,0 +1,13 @@
+Annotation ID mapping: {2: 'overripe', 1: 'ripe', 0: 'unripe'} filename votes: {2: Counter({'overripe': 270}), 1: Counter({'ripe': 274, 'overripe': 3}), 0: Counter({'unripe': 273})}
+Crops: {('test', 'overripe'): 39, ('test', 'ripe'): 29, ('test', 'unripe'): 36, ('val', 'overripe'): 37, ('val', 'ripe'): 29, ('val', 'unripe'): 34, ('train', 'overripe'): 173, ('train', 'ripe'): 147, ('train', 'unripe'): 150}
+{"epoch": 1, "loss": 0.2154313150793314, "val": {"n": 100, "accuracy": 0.98, "macro_f1": 0.9794967381174278, "confusion": [[36, 1, 0], [1, 28, 0], [0, 0, 34]]}, "seconds": 10.6}
+{"epoch": 2, "loss": 0.04544989994028583, "val": {"n": 100, "accuracy": 0.98, "macro_f1": 0.9794967381174278, "confusion": [[36, 1, 0], [1, 28, 0], [0, 0, 34]]}, "seconds": 11.3}
+{"epoch": 3, "loss": 0.12608042483528456, "val": {"n": 100, "accuracy": 0.98, "macro_f1": 0.9796296296296297, "confusion": [[35, 2, 0], [0, 29, 0], [0, 0, 34]]}, "seconds": 22.2}
+{"epoch": 4, "loss": 0.11534574593727788, "val": {"n": 100, "accuracy": 0.99, "macro_f1": 0.9897840724402136, "confusion": [[36, 1, 0], [0, 29, 0], [0, 0, 34]]}, "seconds": 21.8}
+{"epoch": 5, "loss": 0.07850643992424011, "val": {"n": 100, "accuracy": 0.99, "macro_f1": 0.9897840724402136, "confusion": [[36, 1, 0], [0, 29, 0], [0, 0, 34]]}, "seconds": 22.8}
+{"epoch": 6, "loss": 0.06698830621317028, "val": {"n": 100, "accuracy": 0.99, "macro_f1": 0.9897840724402136, "confusion": [[36, 1, 0], [0, 29, 0], [0, 0, 34]]}, "seconds": 24.3}
+{"epoch": 7, "loss": 0.03268105066381395, "val": {"n": 100, "accuracy": 0.99, "macro_f1": 0.9897840724402136, "confusion": [[36, 1, 0], [0, 29, 0], [0, 0, 34]]}, "seconds": 21.8}
+{"epoch": 8, "loss": 0.03696432583189259, "val": {"n": 100, "accuracy": 1.0, "macro_f1": 1.0, "confusion": [[37, 0, 0], [0, 29, 0], [0, 0, 34]]}, "seconds": 22.5}
+/home/raj/UB_Hack/ripesense/ripesense/models/train_camera_only.py:171: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter has become the default. Learn more about the new export logic: https://docs.pytorch.org/docs/stable/onnx_export.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html
+  torch.onnx.export(net, torch.zeros(1,3,224,224), str(out/"stage.onnx"),
+FINAL {"n": 104, "accuracy": 0.9903846153846154, "macro_f1": 0.9900212781568714, "confusion": [[38, 1, 0], [0, 29, 0], [0, 0, 36]]}

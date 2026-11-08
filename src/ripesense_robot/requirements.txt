@@ -1,0 +1,11 @@
+# Runtime (Pi 5 and laptop). pyrealsense2 is built from source on the Pi: deploy/build_librealsense.sh
+numpy
+opencv-python-headless
+scikit-learn
+lightgbm
+pandas
+joblib
+flask
+pyyaml
+matplotlib
+onnxruntime

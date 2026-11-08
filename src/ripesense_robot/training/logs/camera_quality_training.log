@@ -1,0 +1,21 @@
+images {'test': 1619, 'val': 1693, 'train': 8168} duplicates removed {'train': 2}
+/home/raj/UB_Hack/ripesense/ripesense/models/train_camera_quality.py:60: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter has become the default. Learn more about the new export logic: https://docs.pytorch.org/docs/stable/onnx_export.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html
+  torch.onnx.export(net,torch.zeros(1,3,224,224),str(out/"features.onnx"),
+features 0 / 11480 seconds 1
+features 1024 / 11480 seconds 47
+features 2048 / 11480 seconds 84
+features 3072 / 11480 seconds 120
+features 4096 / 11480 seconds 167
+features 5120 / 11480 seconds 208
+features 6144 / 11480 seconds 243
+features 7168 / 11480 seconds 266
+features 8192 / 11480 seconds 300
+features 9216 / 11480 seconds 344
+features 10240 / 11480 seconds 376
+features 11264 / 11480 seconds 411
+validation 0.03 0.9799642999191632
+validation 0.3 0.9772758403266132
+validation 3.0 0.9772758403266132
+/home/raj/UB_Hack/ripesense/ripesense/models/train_camera_quality.py:105: DeprecationWarning: You are using the legacy TorchScript-based ONNX export. Starting in PyTorch 2.9, the new torch.export-based ONNX exporter has become the default. Learn more about the new export logic: https://docs.pytorch.org/docs/stable/onnx_export.html. For exporting control flow: https://pytorch.org/tutorials/beginner/onnx/export_control_flow_model_to_onnx_tutorial.html
+  torch.onnx.export(full,torch.zeros(1,3,224,224),str(out/"image_model.onnx"),
+FINAL TEST {"n": 1619, "accuracy": 0.9765287214329833, "macro_f1": 0.9746507069614587, "confusion": [[131, 0, 0, 2, 1, 1, 0, 1, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0], [1, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 116, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 139, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0], [2, 0, 0, 0, 0, 0, 0, 129, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 131, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 113, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 135, 0, 2, 1, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 89, 0, 0, 0], [2, 0, 0, 2, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 2, 121, 0, 0], [1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22]]}

@@ -1,0 +1,50 @@
+classes: ['apple_fresh', 'apple_rotten', 'avocado_ripe', 'avocado_rotten', 'banana_overripe', 'banana_ripe', 'banana_rotten', 'banana_unripe', 'lemon_fresh', 'mango_fresh', 'mango_rotten', 'not_fruit', 'orange_fresh', 'orange_rotten', 'other_fruit', 'strawberry_fresh', 'strawberry_rotten']
+public train {'apple_fresh': 650, 'apple_rotten': 650, 'banana_overripe': 189, 'banana_ripe': 193, 'banana_rotten': 650, 'banana_unripe': 191, 'orange_fresh': 650, 'orange_rotten': 650, 'other_fruit': 650, 'strawberry_fresh': 162, 'strawberry_rotten': 157}
+public val   {'apple_fresh': 149, 'apple_rotten': 141, 'banana_overripe': 40, 'banana_ripe': 42, 'banana_rotten': 138, 'banana_unripe': 40, 'orange_fresh': 127, 'orange_rotten': 145, 'other_fruit': 155, 'strawberry_fresh': 18, 'strawberry_rotten': 21}
+public test  {'apple_fresh': 141, 'apple_rotten': 132, 'banana_overripe': 41, 'banana_ripe': 42, 'banana_rotten': 113, 'banana_unripe': 42, 'orange_fresh': 142, 'orange_rotten': 129, 'other_fruit': 156, 'strawberry_fresh': 20, 'strawberry_rotten': 22}
+robot  train {'apple_fresh': 122, 'avocado_ripe': 132, 'banana_unripe': 114, 'mango_fresh': 43, 'not_fruit': 40, 'orange_fresh': 135, 'orange_rotten': 27, 'strawberry_fresh': 282}
+robot  val   {'apple_fresh': 16, 'avocado_ripe': 17, 'banana_unripe': 15, 'mango_fresh': 6, 'not_fruit': 6, 'orange_fresh': 18, 'orange_rotten': 4, 'strawberry_fresh': 38}
+robot  test  {'apple_fresh': 24, 'avocado_ripe': 26, 'banana_unripe': 22, 'mango_fresh': 8, 'not_fruit': 7, 'orange_fresh': 27, 'orange_rotten': 5, 'strawberry_fresh': 56}
+realsense train {'apple_fresh': 49, 'avocado_ripe': 64, 'avocado_rotten': 20, 'banana_unripe': 44, 'lemon_fresh': 114, 'mango_fresh': 36, 'mango_rotten': 38, 'orange_fresh': 120, 'orange_rotten': 25, 'strawberry_fresh': 112}
+realsense val   {'apple_fresh': 7, 'avocado_ripe': 9, 'avocado_rotten': 3, 'banana_unripe': 6, 'lemon_fresh': 16, 'mango_fresh': 4, 'mango_rotten': 5, 'orange_fresh': 16, 'orange_rotten': 4, 'strawberry_fresh': 15}
+realsense test  {'apple_fresh': 9, 'avocado_ripe': 12, 'avocado_rotten': 3, 'banana_unripe': 8, 'lemon_fresh': 22, 'mango_fresh': 7, 'mango_rotten': 7, 'orange_fresh': 24, 'orange_rotten': 4, 'strawberry_fresh': 22}
+train 6309  val 1221  test 1273  epochs 12
+epoch  1/12 loss 1.770  val public F1 0.619  val robot F1 0.820  val REALSENSE F1 0.657  (141s)
+epoch  2/12 loss 0.562  val public F1 0.839  val robot F1 0.838  val REALSENSE F1 0.916  (145s)
+epoch  3/12 loss 0.477  val public F1 0.880  val robot F1 0.982  val REALSENSE F1 0.919  (150s)
+epoch  4/12 loss 0.437  val public F1 0.881  val robot F1 0.989  val REALSENSE F1 0.921  (189s)
+epoch  5/12 loss 0.403  val public F1 0.938  val robot F1 0.988  val REALSENSE F1 0.963  (143s)
+epoch  6/12 loss 0.393  val public F1 0.953  val robot F1 0.994  val REALSENSE F1 0.931  (149s)
+epoch  7/12 loss 0.383  val public F1 0.958  val robot F1 0.849  val REALSENSE F1 0.963  (174s)
+epoch  8/12 loss 0.365  val public F1 0.967  val robot F1 1.000  val REALSENSE F1 0.963  (159s)
+epoch  9/12 loss 0.356  val public F1 0.976  val robot F1 1.000  val REALSENSE F1 1.000  (147s)
+epoch 10/12 loss 0.350  val public F1 0.982  val robot F1 1.000  val REALSENSE F1 0.980  (150s)
+epoch 11/12 loss 0.346  val public F1 0.982  val robot F1 1.000  val REALSENSE F1 0.980  (147s)
+epoch 12/12 loss 0.349  val public F1 0.983  val robot F1 1.000  val REALSENSE F1 0.980  (140s)
+
+TEST ALL: n=1273 accuracy 0.976 macro-F1 0.988
+  recall per class: {'apple_fresh': 0.971, 'apple_rotten': 0.992, 'avocado_ripe': 1.0, 'avocado_rotten': 1.0, 'banana_overripe': 1.0, 'banana_ripe': 1.0, 'banana_rotten': 1.0, 'banana_unripe': 0.986, 'lemon_fresh': 1.0, 'mango_fresh': 1.0, 'mango_rotten': 1.0, 'not_fruit': 1.0, 'orange_fresh': 0.995, 'orange_rotten': 0.942, 'other_fruit': 0.904, 'strawberry_fresh': 1.0, 'strawberry_rotten': 1.0}
+
+TEST PUBLIC: n=980 accuracy 0.969 macro-F1 0.981
+  recall per class: {'apple_fresh': 0.965, 'apple_rotten': 0.992, 'banana_overripe': 1.0, 'banana_ripe': 1.0, 'banana_rotten': 1.0, 'banana_unripe': 1.0, 'orange_fresh': 0.993, 'orange_rotten': 0.938, 'other_fruit': 0.904, 'strawberry_fresh': 1.0, 'strawberry_rotten': 1.0}
+
+TEST ROBOT: n=175 accuracy 0.994 macro-F1 0.996
+  recall per class: {'apple_fresh': 1.0, 'avocado_ripe': 1.0, 'banana_unripe': 0.955, 'mango_fresh': 1.0, 'not_fruit': 1.0, 'orange_fresh': 1.0, 'orange_rotten': 1.0, 'strawberry_fresh': 1.0}
+
+TEST REALSENSE: n=118 accuracy 1.000 macro-F1 1.000
+  recall per class: {'apple_fresh': 1.0, 'avocado_ripe': 1.0, 'avocado_rotten': 1.0, 'banana_unripe': 1.0, 'lemon_fresh': 1.0, 'mango_fresh': 1.0, 'mango_rotten': 1.0, 'orange_fresh': 1.0, 'orange_rotten': 1.0, 'strawberry_fresh': 1.0}
+
+REALSENSE test confusion (rows true, cols pred):
+  apple_fresh        {'apple_fresh': 9}
+  avocado_ripe       {'avocado_ripe': 12}
+  avocado_rotten     {'avocado_rotten': 3}
+  banana_unripe      {'banana_unripe': 8}
+  lemon_fresh        {'lemon_fresh': 22}
+  mango_fresh        {'mango_fresh': 7}
+  mango_rotten       {'mango_rotten': 7}
+  orange_fresh       {'orange_fresh': 24}
+  orange_rotten      {'orange_rotten': 4}
+  strawberry_fresh   {'strawberry_fresh': 22}
+
+OpenCV-DNN vs PyTorch: same class 200/200
+saved /mnt/data/ripesense_train/robot_fruit_v2/robot_fruit_model.onnx

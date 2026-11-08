@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RipeSense · demo</title>
+<link rel="stylesheet" href="/static/insights.css">
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #1a1d1c; color: #eee; }
+  header { padding: 10px 18px; background: #111; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; }
+  header b { color: #f5c518; } header a { color: #9ab; font-size: 14px; } .muted { color: #8b9490; font-size: 13px; }
+  main { padding: 18px; max-width: 1500px; }
+  .top { display: flex; gap: 22px; flex-wrap: wrap; align-items: flex-start; }
+  .live { position: relative; width: 560px; max-width: 100%; }
+  .live img { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: #000; border-radius: 8px; display: block; }
+  .live .hint { position: absolute; left: 10px; bottom: 10px; background: rgba(0,0,0,.6); padding: 4px 8px; border-radius: 6px; font-size: 13px; }
+  iframe { width: 480px; height: 320px; border: 8px solid #000; border-radius: 6px; background: #000; display: block; }
+  .controls { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  button.main { font: inherit; padding: 10px 18px; border-radius: 8px; border: 0; background: #f5c518; color: #111; font-weight: 600; cursor: pointer; }
+  select, input { font: inherit; padding: 8px; border-radius: 6px; }
+  .side { display: flex; flex-direction: column; gap: 12px; }
+  .box { background: #222625; border: 1px solid #2e3432; border-radius: 10px; padding: 10px 12px; font-size: 13px; color: #c3c2b7; width: 470px; }
+  .box h3 { margin: 0 0 6px; font-size: 13px; color: #f5c518; }
+  .taught span { display: inline-block; margin: 3px 6px 0 0; padding: 2px 8px; border-radius: 99px; background: #1a1d1c; border: 1px solid #2e3432; }
+  .taught a { color: #8b9490; margin-left: 4px; cursor: pointer; text-decoration: none; }
+  .bar { display: grid; grid-template-columns: 110px 1fr 44px; gap: 8px; align-items: center; margin: 2px 0; }
+  .bar i { display: block; height: 10px; border-radius: 0 4px 4px 0; background: #3987e5; }
+</style>
+</head>
+<body class="viz-root">
+<header><span><b>Ripe</b>Sense · live demo</span><a href="/collect" target="_blank">collect</a><a href="/store" target="_blank">store</a><a href="/dev" target="_blank">sim</a><span class="muted" id="hdr"></span></header>
+<main>
+<div class="top">
+  <div class="live">
+    <img id="cam" alt="live camera">
+    <div class="hint" id="hint">Fill most of the frame with one fruit · plain background · even light</div>
+  </div>
+  <div class="side">
+    <iframe id="kiosk" src="/?dev=1" title="kiosk screen"></iframe>
+    <div class="controls">
+      <button class="main" onclick="scan()">Scan</button>
+      <label class="muted">fruit
+        <select id="ft" onchange="setType()">
+          <option value="">auto (image model)</option>
+          <option>banana</option><option>apple</option><option>orange</option><option>guava</option>
+          <option>pomegranate</option><option>lime</option><option>grape</option><option>strawberry</option>
+          <option>jujube</option><option>mango</option><option>avocado</option><option>tomato</option>
+        </select></label>
+      <label class="muted">fruit id <input id="fid" size="6" placeholder="B1" onchange="setType()" title="same id on every scan of one fruit → forecast tightens"></label>
+    </div>
+    <div class="box teach">
+      <h3>Teach a new fruit (≈30 s, no retraining)</h3>
+      <input id="tl" placeholder="kiwi  or  kiwi:ripe"> <button onclick="teach()">Teach 5 views</button>
+      <span class="muted" id="tmsg"></span>
+      <div class="muted" style="margin-top:4px">Hold the fruit in view and slowly turn it while it captures.</div>
+      <div class="taught" id="taught"></div>
+    </div>
+    <div class="box sensors" id="sensbox" style="display:none">
+      <h3>Pull-the-cable demo</h3>
+      <label><input type="checkbox" data-s="spectral" checked> spectral</label>
+      <label><input type="checkbox" data-s="gas" checked> gas</label>
+      <label><input type="checkbox" data-s="camera" checked> camera</label>
+      <div class="muted">Untick a sensor, scan again: the verdict still comes, from the sensors that are left.</div>
+    </div>
+    <div class="box" id="probs" style="display:none"></div>
+  </div>
+</div>
+<div id="ins"></div>
+</main>
+<script src="/static/insights.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+async function post(u, b) { return (await fetch(u, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(b || {})})).json(); }
+let preview = true;
+function tick() {
+  if (!preview) return;
+  const img = new Image();
+  img.onload = () => { $("cam").src = img.src; setTimeout(tick, 120); };
+  img.onerror = () => { $("hint").textContent = "No live preview (RealSense/mock captures per scan)"; $("cam").style.visibility = "hidden"; preview = false; };
+  img.src = "/api/preview.jpg?t=" + Date.now();
+}
+tick();
+async function setType() { await post("/api/collect", {fruit_type: $("ft").value, fruit_id: $("fid").value.trim()}); }
+async function scan() { await setType(); await post("/api/scan"); }
+async function teach() {
+  const l = $("tl").value.trim(); if (!l) { $("tmsg").textContent = "type a name first"; return; }
+  $("tmsg").textContent = "capturing… turn the fruit";
+  const r = await post("/api/teach", {label: l, n: 5});
+  $("tmsg").textContent = r.error ? r.error : `added ${r.added} views of "${r.label}"`;
+  showTaught(r.taught);
+}
+async function forget(l) { const r = await post("/api/forget", {label: l}); showTaught(r.taught); }
+function showTaught(t) {
+  $("taught").innerHTML = Object.entries(t || {}).map(([k, n]) => `<span>${k} · ${n}<a title="forget" onclick="forget('${k.replace(/'/g, "")}')">×</a></span>`).join("");
+}
+document.querySelectorAll("#sensbox input").forEach(cb => cb.onchange = () => post("/api/unplug", {sensor: cb.dataset.s, off: !cb.checked}));
+const pct = v => Math.round(v * 100) + "%";
+function bars(o) { return Object.entries(o).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+  `<div class="bar"><span>${k}</span><i style="width:${Math.max(2, v * 100)}%"></i><span>${pct(v)}</span></div>`).join(""); }
+async function poll() {
+  try {
+    const s = await (await fetch("/api/status")).json();
+    const m = s.models || {};
+    $("hdr").textContent = `${s.camera_only ? "camera-only" : s.mock ? "simulated sensors" : "full sensors"} · ` +
+      ["image_model", "stage_model", "spectral_prior"].filter(k => m[k]).join(", ") + (s.trained ? ", fusion" : "") +
+      (s.disabled && s.disabled.length ? ` · OFF: ${s.disabled.join(", ")}` : "");
+    $("sensbox").style.display = s.camera_only ? "none" : "block";
+    showTaught(m.taught);
+    const r = s.result;
+    if (r && s.state === "result") {
+      $("probs").style.display = "block";
+      $("probs").innerHTML = `<h3>Stage probabilities (${r.tier})</h3>` + bars(r.probs) +
+        (r.image_model && r.image_model.fruit_top ? `<h3 style="margin-top:8px">Fruit type</h3>` + bars(Object.fromEntries(r.image_model.fruit_top)) : "");
+      RS.render($("ins"), r);
+    } else if (s.state === "scanning") { RS.render($("ins"), null); $("probs").style.display = "none"; }
+  } catch (e) {}
+  setTimeout(poll, 800);
+}
+poll();
+</script>
+</body>
+</html>

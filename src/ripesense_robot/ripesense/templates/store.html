@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RipeSense · store dashboard</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f6f7f6; color: #1d2320; }
+  header { background: #111; color: #fff; padding: 12px 20px; display: flex; gap: 20px; align-items: baseline; }
+  header b { color: #f5c518; } header a { color: #bbb; font-size: 14px; }
+  main { padding: 18px 20px; max-width: 980px; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+  .tile { background: #fff; border: 1px solid #e3e6e4; border-radius: 10px; padding: 12px 14px; }
+  .tile .v { font-size: 26px; font-weight: 700; } .tile .k { font-size: 12px; color: #5b635f; }
+  section { background: #fff; border: 1px solid #e3e6e4; border-radius: 10px; padding: 14px 16px; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  .row { display: grid; grid-template-columns: 90px 1fr 60px; align-items: center; gap: 10px; margin: 6px 0; font-size: 13px; }
+  .stack { display: flex; height: 20px; border-radius: 4px; overflow: hidden; background: #f0f2f1; }
+  .stack i { display: block; height: 100%; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: #5b635f; margin-top: 12px; flex-wrap: wrap; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; background: var(--c); vertical-align: -1px; }
+  .muted { color: #8a918d; font-size: 12px; }
+  .tiles.impact .tile { border-color: #cfe0f5; }
+  .learn { position: relative; margin-top: 18px; }
+  .learn svg { width: 100%; height: auto; display: block; }
+  .learn text { font-size: 11px; fill: #5b635f; font-family: system-ui, sans-serif; }
+  .learn .tip { position: absolute; display: none; pointer-events: none; background: #fff; border: 1px solid #e3e6e4; border-radius: 6px; padding: 5px 8px; font-size: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+</style>
+</head>
+<body>
+<header><span><b>Ripe</b>Sense · store dashboard</span><a href="/collect">data collection</a><span class="muted" id="src"></span></header>
+<main>
+  <div class="tiles">
+    <div class="tile"><div class="v" id="t-total">0</div><div class="k">scans, last 7 days</div></div>
+    <div class="tile"><div class="v" id="t-md">0</div><div class="k">entered a markdown tier</div></div>
+    <div class="tile"><div class="v" id="t-dollars">$0</div><div class="k">markdown given (vs. waste)</div></div>
+    <div class="tile"><div class="v" id="t-spoiled">0</div><div class="k">pulled as spoiled</div></div>
+  </div>
+  <div class="tiles impact">
+    <div class="tile"><div class="v" id="i-rec">$0</div><div class="k">extra $ recovered by optimal markdown (vs none)</div></div>
+    <div class="tile"><div class="v" id="i-waste">0 kg</div><div class="k">food waste avoided (expected)</div></div>
+    <div class="tile"><div class="v" id="i-co2">0 kg</div><div class="k">CO₂e avoided (Poore &amp; Nemecek 2018)</div></div>
+    <div class="tile"><div class="v" id="i-don">0</div><div class="k">flagged "donate today"</div></div>
+  </div>
+  <section>
+    <h2>Stock entering each tier per day</h2>
+    <div id="chart"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+  <section class="learn">
+    <h2>The cabinet is learning: held-out accuracy after each training run</h2>
+    <div id="learn"><p class="muted">No training runs yet. Label scans on /collect and press Train.</p></div>
+    <div class="tip" id="ltip"></div>
+    <p class="muted">Macro-F1 with cross-validation grouped by fruit (no fruit in both train and test).</p>
+  </section>
+</main>
+<script>
+const ORDER = ["unripe", "ripe", "ripe_to_overripe", "overripe", "spoiled", "uncertain"];
+const LABEL = {unripe: "Unripe", ripe: "Ripe", ripe_to_overripe: "Ripe now (25–40%)", overripe: "Bake/juice (50–70%)", spoiled: "Spoiled", uncertain: "Uncertain"};
+const COLOR = {unripe: "#5cb85c", ripe: "#f5c518", ripe_to_overripe: "#f59e0b", overripe: "#d9622b", spoiled: "#b23b3b", uncertain: "#b9c0bc"};
+async function load() {
+  const d = await (await fetch("/api/store_summary")).json();
+  document.getElementById("src").textContent = d.source === "tiger" ? "source: Tiger Data" : "source: local SQLite";
+  const days = {}; let total = 0, md = 0, dollars = 0, spoiled = 0;
+  for (const r of d.rows) {
+    (days[r.day] ||= {})[r.stage] = r.n; total += r.n; dollars += r.markdown_dollars || 0;
+    if (r.stage === "ripe_to_overripe" || r.stage === "overripe") md += r.n;
+    if (r.stage === "spoiled") spoiled += r.n;
+  }
+  document.getElementById("t-total").textContent = total;
+  document.getElementById("t-md").textContent = md;
+  document.getElementById("t-dollars").textContent = "$" + dollars.toFixed(2);
+  document.getElementById("t-spoiled").textContent = spoiled;
+  const max = Math.max(1, ...Object.values(days).map(o => Object.values(o).reduce((a, b) => a + b, 0)));
+  document.getElementById("chart").innerHTML = Object.keys(days).sort().map(day => {
+    const o = days[day], n = Object.values(o).reduce((a, b) => a + b, 0);
+    const segs = ORDER.filter(s => o[s]).map(s => `<i title="${LABEL[s]}: ${o[s]}" style="width:${o[s] / max * 100}%;background:${COLOR[s]}"></i>`).join("");
+    return `<div class="row"><span>${day.slice(5)}</span><div class="stack">${segs}</div><span>${n}</span></div>`;
+  }).join("") || '<p class="muted">No scans in the last 7 days.</p>';
+  document.getElementById("legend").innerHTML = ORDER.map(s => `<span style="--c:${COLOR[s]}">${LABEL[s]}</span>`).join("");
+}
+async function impact() {
+  const d = await (await fetch("/api/store_summary")).json(), i = d.impact || {};
+  document.getElementById("i-rec").textContent = "$" + (i.recovered || 0).toFixed(2);
+  document.getElementById("i-waste").textContent = (i.waste_kg || 0).toFixed(2) + " kg";
+  document.getElementById("i-co2").textContent = (i.co2e_kg || 0).toFixed(2) + " kg";
+  document.getElementById("i-don").textContent = i.donate || 0;
+}
+async function learn() {
+  const h = await (await fetch("/api/train_history")).json();
+  const pts = h.filter(r => r.stage_macro_f1 != null);
+  if (!pts.length) return;
+  const W = 900, H = 220, L = 44, Rm = 16, T = 12, B = 30;
+  const xs = pts.map(p => p.n_scans);
+  let x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const pad = Math.max(1, (x1 - x0) * 0.06); x0 -= pad; x1 += pad;
+  const X = v => L + (W - L - Rm) * (v - x0) / (x1 - x0), Y = v => T + (H - T - B) * (1 - v);
+  let g = "";
+  for (const t of [0, .25, .5, .75, 1]) g += `<line x1="${L}" x2="${W - Rm}" y1="${Y(t)}" y2="${Y(t)}" stroke="#eceeed"/><text x="${L - 6}" y="${Y(t) + 4}" text-anchor="end">${t.toFixed(2)}</text>`;
+  g += `<text x="${(L + W - Rm) / 2}" y="${H - 4}" text-anchor="middle">labelled scans used for training</text>`;
+  for (const p of pts) g += `<text x="${X(p.n_scans)}" y="${H - 16}" text-anchor="middle">${p.n_scans}</text>`;
+  g += `<polyline fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round" points="${pts.map(p => X(p.n_scans) + "," + Y(p.stage_macro_f1)).join(" ")}"/>`;
+  pts.forEach((p, i) => g += `<circle cx="${X(p.n_scans)}" cy="${Y(p.stage_macro_f1)}" r="4.5" fill="#2a78d6" stroke="#fff" stroke-width="2"/>` +
+    `<circle data-i="${i}" cx="${X(p.n_scans)}" cy="${Y(p.stage_macro_f1)}" r="14" fill="transparent"/>`);
+  const last = pts[pts.length - 1];
+  g += `<text x="${X(last.n_scans)}" y="${Y(last.stage_macro_f1) + 22}" text-anchor="middle" style="fill:#1d2320;font-weight:600">${last.stage_macro_f1.toFixed(2)}</text>`;
+  const box = document.getElementById("learn");
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="macro-F1 rising from ${pts[0].stage_macro_f1.toFixed(2)} to ${last.stage_macro_f1.toFixed(2)}">${g}</svg>`;
+  const tip = document.getElementById("ltip");
+  box.querySelectorAll("circle[data-i]").forEach(c => {
+    c.onmouseenter = () => { const p = pts[+c.dataset.i], r = c.getBoundingClientRect(), pr = box.parentElement.getBoundingClientRect();
+      tip.innerHTML = `<b>${p.at.replace("T", " ").slice(5, 16)}</b><br>macro-F1 ${p.stage_macro_f1.toFixed(3)} · ${p.n_scans} scans, ${p.n_fruits} fruits` +
+        (p.days_mae != null ? `<br>days MAE ${p.days_mae.toFixed(2)}` : "") + (p.coverage != null ? ` · range coverage ${Math.round(p.coverage * 100)}%` : "");
+      tip.style.display = "block"; tip.style.left = (r.left - pr.left + 16) + "px"; tip.style.top = (r.top - pr.top - 10) + "px"; };
+    c.onmouseleave = () => tip.style.display = "none";
+  });
+}
+load(); impact(); learn(); setInterval(() => { load(); impact(); }, 10000);
+</script>
+</body>
+</html>

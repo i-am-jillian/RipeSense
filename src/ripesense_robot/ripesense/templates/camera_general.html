@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RipeSense · Camera</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0d0f0e;color:#f2f4f3}
+*{box-sizing:border-box}body{max-width:1020px;margin:auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.brand{font-size:19px;font-weight:700}.brand b{color:#f5c518}.badge{font-size:12px;border:1px solid #343a35;border-radius:30px;padding:7px 12px;color:#a7b2a9}
+h1{font-size:clamp(27px,5vw,42px);margin:8px 0}p{color:#a7b2a9;line-height:1.6}.layout{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;margin-top:26px}.card{background:#171a19;border:1px solid #2a302c;border-radius:18px;padding:20px}
+.view{aspect-ratio:4/3;background:#090b0a;border-radius:12px;position:relative;overflow:hidden;display:grid;place-items:center}.view video,.view img{position:absolute;width:100%;height:100%;object-fit:contain}.placeholder{padding:25px;text-align:center;color:#858e87}
+button,.upload{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 15px;background:#252c27;border:1px solid #3c453f;border-radius:9px;color:#f2f4f3;font:inherit;cursor:pointer;text-align:center}.primary{background:#f5c518;color:#15170f;border:0;font-weight:650}button:disabled{opacity:.45;cursor:wait}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.upload input{display:none}.hint{font-size:12px;margin:12px 0 0}.stage{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#f5c518}.headline{font-size:34px;margin:12px 0}.result-note{padding:13px;background:#202721;border-radius:10px;font-size:14px;margin-top:18px;color:#b2bcb4}.row{display:flex;justify-content:space-between;font-size:14px;margin:18px 0 6px}.track{height:7px;background:#2b332d;border-radius:6px;overflow:hidden}.fill{height:100%;background:#f5c518}.status{min-height:25px;margin:14px 0;font-size:14px;color:#c8d1ca}.error{color:#ffb6a6}.idle{color:#879189;margin-top:24px}.hidden{display:none!important}footer{font-size:12px;color:#7e8981;margin-top:22px}.guide{font-size:13px;color:#a7b2a9}a{color:#f5c518}@media(max-width:700px){body{padding:16px}.layout{grid-template-columns:1fr}header{margin-bottom:20px}}
+</style>
+<header><span class="brand"><b>Ripe</b>Sense</span><span style="display:flex;gap:10px;align-items:center"><a class="badge" href="/robot" style="text-decoration:none;color:#f5c518;border-color:#f5c518">Robot picker live →</a><span class="badge">Camera only · Produce assessment</span></span></header>
+<h1>Show it. Name it. Check its appearance.</h1>
+<p>Photograph a fruit or vegetable. Let the model identify it, or describe the item yourself.</p>
+<main class="layout">
+<section class="card">
+  <div class="view"><span id="placeholder" class="placeholder">Place one fruit close to the camera.<br>Use even lighting and a plain background.</span><video id="video" autoplay muted playsinline class="hidden"></video><img id="photo" alt="Photo being assessed" class="hidden"></div>
+  <label for="item" style="display:block;margin-top:14px;font-size:13px">Item name or description (optional)</label><input id="item" maxlength="200" placeholder="Auto-detect, or describe it: e.g. avocado" style="width:100%;padding:12px;margin-top:7px;background:#0d0f0e;border:1px solid #3c453f;border-radius:9px;color:#f2f4f3;font:inherit"><p id="supported" class="hint"></p><div class="actions"><button id="start">Start camera</button><button id="scan" class="primary" disabled>Take photo &amp; predict</button><label class="upload">Upload photo<input id="upload" type="file" accept="image/jpeg,image/png,image/webp"></label></div>
+  <div class="actions"><button id="attached">Use attached camera</button><button id="stop" class="hidden">Stop camera</button></div>
+  <p class="hint">Fill most of the photo with one fruit. Browser camera works on localhost or HTTPS. “Use attached camera” captures from the computer running this app.</p>
+  <div id="status" class="status" role="status" aria-live="polite">Loading model…</div>
+</section>
+<section class="card" aria-live="polite">
+  <div class="stage">Your result</div><div id="idle" class="idle">Your ripeness result will appear here.</div>
+  <div id="result" class="hidden"><h2 id="headline" class="headline"></h2><div id="stage" class="badge" style="display:inline-block"></div><p id="tip"></p><div id="scoreLabel" class="hint"></div><div id="scores"></div><p id="latency" class="guide"></p><div id="guide" class="result-note"></div><p class="hint">Results show whether a trained specialist or experimental description matching was used. Visual appearance cannot establish internal condition or remaining shelf life.</p><button id="save" style="margin-top:16px">Save result</button></div>
+</section>
+</main>
+<footer>Runs locally · No gas or spectral sensor required · <a href="https://data.mendeley.com/datasets/bdd69gyhv8/1" target="_blank" rel="noreferrer">Fresh and Rotten Fruits</a> · <a href="https://data.mendeley.com/datasets/b6fftwbr2v/1" target="_blank" rel="noreferrer">FruitNet</a> (CC BY 4.0) · <a href="https://huggingface.co/Xenova/clip-vit-base-patch32" target="_blank" rel="noreferrer">CLIP image–text model</a></footer>
+<script>
+const $=id=>document.getElementById(id);let stream=null,lastResult=null,busy=false,photoURL=null;
+function status(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error)}
+function setBusy(value){busy=value;for(const id of ['start','attached','upload'])$(id).disabled=value;$('scan').disabled=value||!stream}
+function showPhoto(src){$('photo').src=src;$('photo').classList.remove('hidden');$('video').classList.add('hidden');$('placeholder').classList.add('hidden')}
+function showResult(r){lastResult=r;$('idle').classList.add('hidden');$('result').classList.remove('hidden');$('headline').textContent=r.headline;$('stage').textContent=`${r.fruit_type} · ${r.predicted_stage}`;$('tip').textContent=r.tip;$('scoreLabel').textContent=r.score_label||'Model scores';$('scores').replaceChildren();for(const [stage,p] of Object.entries(r.probabilities)){const row=document.createElement('div');row.className='row';const label=document.createElement('span');label.textContent=stage;const value=document.createElement('span');value.textContent=Math.round(p*100)+'%';row.append(label,value);const track=document.createElement('div');track.className='track';const fill=document.createElement('div');fill.className='fill';fill.style.width=(p*100)+'%';track.append(fill);$('scores').append(row,track)}$('latency').textContent=`Prediction: ${r.inference_ms} ms · ${r.model}`;$('guide').textContent=r.assessment_basis||r.score_label||'Visual assessment';status('Prediction complete.')}
+async function responseJSON(response){const data=await response.json();if(!response.ok)throw Error(data.error||'Prediction failed');return data}
+async function predict(blob){if(busy)return;setBusy(true);status('Reading your photo…');try{const form=new FormData();form.append('image',blob,'fruit.jpg');form.append('item',$('item').value);showResult(await responseJSON(await fetch('/api/predict',{method:'POST',body:form})))}catch(e){status(e.message,true)}finally{setBusy(false)}}
+function stop(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('video').srcObject=null;$('video').classList.add('hidden');$('scan').disabled=true;$('stop').classList.add('hidden');if($('photo').classList.contains('hidden'))$('placeholder').classList.remove('hidden')}
+$('start').onclick=async()=>{if(busy)return;try{stop();if(!navigator.mediaDevices?.getUserMedia)throw Error('Browser camera requires localhost or HTTPS. Use attached camera or upload instead.');stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:640},height:{ideal:480}},audio:false});$('video').srcObject=stream;await $('video').play();$('video').classList.remove('hidden');$('photo').classList.add('hidden');$('placeholder').classList.add('hidden');$('scan').disabled=false;$('stop').classList.remove('hidden');status('Frame the banana, then take a photo.')}catch(e){stop();status(e.message,true)}};
+$('stop').onclick=stop;
+$('scan').onclick=()=>{if(busy||!stream)return;const canvas=document.createElement('canvas'),v=$('video');canvas.width=v.videoWidth;canvas.height=v.videoHeight;canvas.getContext('2d').drawImage(v,0,0);canvas.toBlob(blob=>{if(!blob){status('Could not capture photo.',true);return}showPhoto(canvas.toDataURL('image/jpeg'));predict(blob)},'image/jpeg',.92)};
+$('upload').onchange=()=>{const file=$('upload').files[0];if(!file||busy)return;stop();if(photoURL)URL.revokeObjectURL(photoURL);photoURL=URL.createObjectURL(file);showPhoto(photoURL);predict(file);$('upload').value=''};
+$('attached').onclick=async()=>{if(busy)return;stop();setBusy(true);status('Capturing from attached camera…');try{const r=await responseJSON(await fetch('/api/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item:$('item').value})}));if(r.image)showPhoto(r.image);showResult(r)}catch(e){status(e.message,true)}finally{setBusy(false)}};
+$('save').onclick=()=>{if(!lastResult)return;const url=URL.createObjectURL(new Blob([JSON.stringify(lastResult,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='ripesense-fruit-result.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+window.addEventListener('pagehide',stop);
+fetch('/api/health').then(responseJSON).then(r=>{$('supported').textContent='Recognizes common produce including '+r.supported_items.slice(0,15).join(', ')+'. You can also describe another produce item.';status('Model ready. Take or upload a photo.')}).catch(e=>status(e.message,true));
+</script>
+</html>

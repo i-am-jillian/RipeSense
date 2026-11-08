@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600.0mm" height="300.0mm" viewBox="0 0 600.0 300.0">
+<!-- RipeSense panels. Red = cut, black = engrave. Sheet 600.0x300.0 mm -->
+<rect x="0" y="0" width="600.0" height="300.0" fill="none" stroke="#0000FF" stroke-width="0.2" stroke-dasharray="4 4"/>
+<g id="back">
+<path d="M 314.0,296.0 L 314.0,150.0 L 295.1,150.0 L 295.1,153.0 L 270.9,153.0 L 270.9,150.0 L 233.1,150.0 L 233.1,153.0 L 208.9,153.0 L 208.9,150.0 L 171.1,150.0 L 171.1,153.0 L 146.9,153.0 L 146.9,150.0 L 109.1,150.0 L 109.1,153.0 L 84.9,153.0 L 84.9,150.0 L 47.1,150.0 L 47.1,153.0 L 22.9,153.0 L 22.9,150.0 L 4.0,150.0 L 4.0,296.0 L 22.9,296.0 L 22.9,293.0 L 47.1,293.0 L 47.1,296.0 L 84.9,296.0 L 84.9,293.0 L 109.1,293.0 L 109.1,296.0 L 146.9,296.0 L 146.9,293.0 L 171.1,293.0 L 171.1,296.0 L 208.9,296.0 L 208.9,293.0 L 233.1,293.0 L 233.1,296.0 L 270.9,296.0 L 270.9,293.0 L 295.1,293.0 L 295.1,296.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 267.1,261.1 L 267.1,240.9 L 263.9,240.9 L 263.9,261.1 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 267.1,205.1 L 267.1,184.9 L 263.9,184.9 L 263.9,205.1 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 76.1,261.1 L 76.1,240.9 L 72.9,240.9 L 72.9,261.1 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 76.1,205.1 L 76.1,184.9 L 72.9,184.9 L 72.9,205.1 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 50.536,265.0 L 51.051,265.702 L 51.706,266.277 L 52.469,266.696 L 53.305,266.939 L 54.174,266.996 L 55.035,266.864 L 55.847,266.548 L 56.571,266.064 L 57.173,265.435 L 57.625,264.69 L 57.905,263.866 L 58.0,263.0 L 57.905,262.134 L 57.625,261.31 L 57.173,260.565 L 56.571,259.936 L 55.847,259.452 L 55.035,259.136 L 54.174,259.004 L 53.305,259.061 L 52.469,259.304 L 51.706,259.723 L 51.051,260.298 L 50.536,261.0 L 45.0,261.0 L 45.518,261.068 L 46.0,261.268 L 46.414,261.586 L 46.732,262.0 L 46.932,262.482 L 47.0,263.0 L 46.932,263.518 L 46.732,264.0 L 46.414,264.414 L 46.0,264.732 L 45.518,264.932 L 45.0,265.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 50.536,185.0 L 51.051,185.702 L 51.706,186.277 L 52.469,186.696 L 53.305,186.939 L 54.174,186.996 L 55.035,186.864 L 55.847,186.548 L 56.571,186.064 L 57.173,185.435 L 57.625,184.69 L 57.905,183.866 L 58.0,183.0 L 57.905,182.134 L 57.625,181.31 L 57.173,180.565 L 56.571,179.936 L 55.847,179.452 L 55.035,179.136 L 54.174,179.004 L 53.305,179.061 L 52.469,179.304 L 51.706,179.723 L 51.051,180.298 L 50.536,181.0 L 45.0,181.0 L 45.518,181.068 L 46.0,181.268 L 46.414,181.586 L 46.732,182.0 L 46.932,182.482 L 47.0,183.0 L 46.932,183.518 L 46.732,184.0 L 46.414,184.414 L 46.0,184.732 L 45.518,184.932 L 45.0,185.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="308.5" cy="223.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="9.5" cy="223.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="66.5" cy="262.0" r="1.35" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="17.5" cy="262.0" r="1.35" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="66.5" cy="204.0" r="1.35" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="17.5" cy="204.0" r="1.35" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="42.0" cy="166.0" r="6.0" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+</g>
+<g id="wall">
+<path d="M 314.0,143.0 L 314.0,9.0 L 299.0,9.0 L 299.0,6.0 L 279.0,6.0 L 279.0,9.0 L 50.5,9.0 L 50.5,6.0 L 26.5,6.0 L 26.5,9.0 L 4.0,9.0 L 4.0,143.0 L 23.0,143.0 L 23.0,146.0 L 47.0,146.0 L 47.0,143.0 L 85.0,143.0 L 85.0,146.0 L 109.0,146.0 L 109.0,143.0 L 147.0,143.0 L 147.0,146.0 L 171.0,146.0 L 171.0,143.0 L 209.0,143.0 L 209.0,146.0 L 233.0,146.0 L 233.0,143.0 L 271.0,143.0 L 271.0,146.0 L 295.0,146.0 L 295.0,143.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 267.1,119.6 L 267.1,99.4 L 263.9,99.4 L 263.9,119.6 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 267.1,52.6 L 267.1,32.4 L 263.9,32.4 L 263.9,52.6 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 76.1,119.6 L 76.1,99.4 L 72.9,99.4 L 72.9,119.6 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 76.1,52.6 L 76.1,32.4 L 72.9,32.4 L 72.9,52.6 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 59.0,101.0 L 59.0,51.0 L 55.0,51.0 L 55.0,101.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 50.0,101.0 L 50.0,51.0 L 46.0,51.0 L 46.0,101.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 41.0,101.0 L 41.0,51.0 L 37.0,51.0 L 37.0,101.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 32.0,101.0 L 32.0,51.0 L 28.0,51.0 L 28.0,101.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 23.0,101.0 L 23.0,51.0 L 19.0,51.0 L 19.0,101.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="308.5" cy="76.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="9.5" cy="76.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+</g>
+<g id="door">
+<path d="M 508.0,296.0 L 508.0,151.0 L 318.0,151.0 L 318.0,296.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<text x="428.2" y="223.5" font-family="DejaVu Sans, Arial, sans-serif" font-weight="bold" font-size="16.0" text-anchor="middle" dominant-baseline="middle" fill="#000000" transform="rotate(-90 428.2 223.5)">RipeSense</text>
+<text x="440.2" y="223.5" font-family="DejaVu Sans, Arial, sans-serif" font-weight="bold" font-size="5.5" text-anchor="middle" dominant-baseline="middle" fill="#000000" transform="rotate(-90 440.2 223.5)">fruit ripeness scanner</text>
+</g>
+<g id="floor">
+<path d="M 321.0,144.0 L 353.0,144.0 L 353.0,147.0 L 373.0,147.0 L 373.0,144.0 L 409.0,144.0 L 409.0,147.0 L 429.0,147.0 L 429.0,144.0 L 461.0,144.0 L 461.0,120.5 L 464.0,120.5 L 464.0,100.5 L 461.0,100.5 L 461.0,53.5 L 464.0,53.5 L 464.0,33.5 L 461.0,33.5 L 461.0,10.0 L 321.0,10.0 L 321.0,33.5 L 318.0,33.5 L 318.0,53.5 L 321.0,53.5 L 321.0,100.5 L 318.0,100.5 L 318.0,120.5 L 321.0,120.5 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 410.8,130.2 L 413.2,130.2 L 413.2,125.8 L 410.8,125.8 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 410.8,112.2 L 413.2,112.2 L 413.2,107.8 L 410.8,107.8 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 438.8,130.2 L 441.2,130.2 L 441.2,125.8 L 438.8,125.8 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 438.8,112.2 L 441.2,112.2 L 441.2,107.8 L 438.8,107.8 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="391.0" cy="77.0" r="32.3" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="333.5" cy="123.33" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="331.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="333.5" cy="114.67" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="338.5" cy="131.99" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="336.0" cy="127.66" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="338.5" cy="123.33" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="336.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="338.5" cy="114.67" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="336.0" cy="110.34" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="338.5" cy="106.01" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="343.5" cy="131.99" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="341.0" cy="127.66" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="343.5" cy="123.33" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="341.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="343.5" cy="114.67" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="341.0" cy="110.34" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="343.5" cy="106.01" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="348.5" cy="131.99" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="346.0" cy="127.66" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="348.5" cy="123.33" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="346.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="348.5" cy="114.67" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="346.0" cy="110.34" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="348.5" cy="106.01" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="353.5" cy="131.99" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="351.0" cy="127.66" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="353.5" cy="123.33" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="351.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="353.5" cy="114.67" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="351.0" cy="110.34" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="353.5" cy="106.01" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="356.0" cy="127.66" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="358.5" cy="123.33" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="356.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="358.5" cy="114.67" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="356.0" cy="110.34" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="361.0" cy="119.0" r="1.5" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="330.0" cy="135.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="330.0" cy="103.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="362.0" cy="135.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="362.0" cy="103.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="419.25" cy="122.897" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="417.0" cy="119.0" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="419.25" cy="115.103" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="421.5" cy="126.794" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="423.75" cy="122.897" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="421.5" cy="119.0" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="423.75" cy="115.103" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="421.5" cy="111.206" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="426.0" cy="126.794" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="428.25" cy="122.897" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="426.0" cy="119.0" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="428.25" cy="115.103" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="426.0" cy="111.206" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="430.5" cy="126.794" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="432.75" cy="122.897" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="430.5" cy="119.0" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="432.75" cy="115.103" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="430.5" cy="111.206" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="435.0" cy="119.0" r="1.25" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="451.0" cy="132.0" r="5.0" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+</g>
+<g id="head_front">
+<path d="M 581.0,296.0 L 581.0,150.0 L 558.6,150.0 L 558.6,153.0 L 534.4,153.0 L 534.4,150.0 L 512.0,150.0 L 512.0,296.0 L 534.4,296.0 L 534.4,293.0 L 558.6,293.0 L 558.6,296.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 571.5,276.0 L 571.5,202.0 L 521.5,202.0 L 521.5,276.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="561.5" cy="286.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="531.5" cy="286.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="561.5" cy="192.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="531.5" cy="192.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="517.5" cy="223.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path fill="#000000" fill-rule="evenodd" d="M 532.5,171.5 a 11.0,11.0 0 1,0 22.0,0 a 11.0,11.0 0 1,0 -22.0,0 Z M 534.5,171.5 a 9.0,9.0 0 1,0 18.0,0 a 9.0,9.0 0 1,0 -18.0,0 Z"/>
+<text x="562.5" y="171.5" font-family="DejaVu Sans, Arial, sans-serif" font-weight="bold" font-size="5.0" text-anchor="middle" dominant-baseline="middle" fill="#000000" transform="rotate(-90 562.5 171.5)">TAP</text>
+</g>
+<g id="sensor_sled">
+<path d="M 512.0,146.0 L 562.0,146.0 L 562.0,114.0 L 512.0,114.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<path d="M 532.0,143.0 L 542.0,143.0 L 542.0,140.0 L 532.0,140.0 Z" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="516.0" cy="130.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="558.0" cy="130.0" r="1.7" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="526.84" cy="123.65" r="1.35" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+<circle cx="547.16" cy="123.65" r="1.35" fill="none" stroke="#FF0000" stroke-width="0.1"/>
+</g>
+</svg>

@@ -1,0 +1,8 @@
+-r requirements-camera.txt
+torch
+torchvision
+onnx
+scikit-learn
+pandas
+pyyaml
+openpyxl

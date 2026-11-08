@@ -1,0 +1,312 @@
+{
+  "classes": [
+    "overripe",
+    "ripe",
+    "unripe"
+  ],
+  "val": {
+    "n": 100,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "confusion": [
+      [
+        37,
+        0,
+        0
+      ],
+      [
+        0,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        34
+      ]
+    ]
+  },
+  "test": {
+    "n": 104,
+    "accuracy": 0.9903846153846154,
+    "macro_f1": 0.9900212781568714,
+    "confusion": [
+      [
+        38,
+        1,
+        0
+      ],
+      [
+        0,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        36
+      ]
+    ]
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 0.2154313150793314,
+      "val": {
+        "n": 100,
+        "accuracy": 0.98,
+        "macro_f1": 0.9794967381174278,
+        "confusion": [
+          [
+            36,
+            1,
+            0
+          ],
+          [
+            1,
+            28,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 10.6
+    },
+    {
+      "epoch": 2,
+      "loss": 0.04544989994028583,
+      "val": {
+        "n": 100,
+        "accuracy": 0.98,
+        "macro_f1": 0.9794967381174278,
+        "confusion": [
+          [
+            36,
+            1,
+            0
+          ],
+          [
+            1,
+            28,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 11.3
+    },
+    {
+      "epoch": 3,
+      "loss": 0.12608042483528456,
+      "val": {
+        "n": 100,
+        "accuracy": 0.98,
+        "macro_f1": 0.9796296296296297,
+        "confusion": [
+          [
+            35,
+            2,
+            0
+          ],
+          [
+            0,
+            29,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 22.2
+    },
+    {
+      "epoch": 4,
+      "loss": 0.11534574593727788,
+      "val": {
+        "n": 100,
+        "accuracy": 0.99,
+        "macro_f1": 0.9897840724402136,
+        "confusion": [
+          [
+            36,
+            1,
+            0
+          ],
+          [
+            0,
+            29,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 21.8
+    },
+    {
+      "epoch": 5,
+      "loss": 0.07850643992424011,
+      "val": {
+        "n": 100,
+        "accuracy": 0.99,
+        "macro_f1": 0.9897840724402136,
+        "confusion": [
+          [
+            36,
+            1,
+            0
+          ],
+          [
+            0,
+            29,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 22.8
+    },
+    {
+      "epoch": 6,
+      "loss": 0.06698830621317028,
+      "val": {
+        "n": 100,
+        "accuracy": 0.99,
+        "macro_f1": 0.9897840724402136,
+        "confusion": [
+          [
+            36,
+            1,
+            0
+          ],
+          [
+            0,
+            29,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 24.3
+    },
+    {
+      "epoch": 7,
+      "loss": 0.03268105066381395,
+      "val": {
+        "n": 100,
+        "accuracy": 0.99,
+        "macro_f1": 0.9897840724402136,
+        "confusion": [
+          [
+            36,
+            1,
+            0
+          ],
+          [
+            0,
+            29,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 21.8
+    },
+    {
+      "epoch": 8,
+      "loss": 0.03696432583189259,
+      "val": {
+        "n": 100,
+        "accuracy": 1.0,
+        "macro_f1": 1.0,
+        "confusion": [
+          [
+            37,
+            0,
+            0
+          ],
+          [
+            0,
+            29,
+            0
+          ],
+          [
+            0,
+            0,
+            34
+          ]
+        ]
+      },
+      "seconds": 22.5
+    }
+  ],
+  "source": "https://data.mendeley.com/datasets/56c75hvm7r/2",
+  "license": "CC BY 4.0",
+  "scope": "Banana crops only; no spoilage or remaining-shelf-life labels",
+  "split_limit": "Source image split; fruit identities unavailable; nearby photos may be related",
+  "crop_counts": {
+    "train": 470,
+    "val": 100,
+    "test": 104
+  },
+  "seed": 42,
+  "archive_sha256": null,
+  "unique_source_photos": 673,
+  "onnx_test": {
+    "n": 104,
+    "accuracy": 0.9903846153846154,
+    "macro_f1": 0.9900212781568714,
+    "classes": [
+      "overripe",
+      "ripe",
+      "unripe"
+    ],
+    "confusion": [
+      [
+        38,
+        1,
+        0
+      ],
+      [
+        0,
+        29,
+        0
+      ],
+      [
+        0,
+        0,
+        36
+      ]
+    ],
+    "uncertain": 1,
+    "median_inference_ms": 6.0,
+    "model_sha256": "ffcca48ec72683aa5db016f864b795c66670f512a0326ea2fd94041fb819a020"
+  },
+  "archive_note": "Archive unavailable after training; per-photo SHA256 values remain in datasets/camera_banana/manifest.json"
+}
